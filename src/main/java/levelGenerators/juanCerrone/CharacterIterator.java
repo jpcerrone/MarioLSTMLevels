@@ -28,16 +28,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 
-/** A simple DataSetIterator for use in the LSTMCharModellingExample.
- * Given a text file and a few options, generate feature vectors and labels for training,
- * where we want to predict the next character in the sequence.<br>
- * This is done by randomly choosing a position in the text file, at offsets of 0, exampleLength, 2*exampleLength, etc
- * to start each sequence. Then we convert each character to an index, i.e., a one-hot vector.
- * Then the character 'a' becomes [1,0,0,0,...], 'b' becomes [0,1,0,0,...], etc
- *
- * Feature vectors and labels are both one-hot vectors of same length
- * @author Alex Black
- */
 public class CharacterIterator implements DataSetIterator {
     //Valid characters
     private char[] validCharacters;
@@ -53,31 +43,9 @@ public class CharacterIterator implements DataSetIterator {
     //Offsets for the start of each example
     private LinkedList<Integer> exampleStartOffsets = new LinkedList<>();
 
-    /**
-     * @param files Path to text files to use for generating samples
-     * @param textFileEncoding Encoding of the text file. Can try Charset.defaultCharset()
-     * @param miniBatchSize Number of examples per mini-batch
-     * @param exampleLength Number of characters in each input/output vector
-     * @param validCharacters Character array of valid characters. Characters not present in this array will be removed
-     * @param rng Random number generator, for repeatability if required
-     * @throws IOException If text file cannot  be loaded
-     */
-    CharacterIterator(File[] files, Charset textFileEncoding, int miniBatchSize, int exampleLength,
-                      char[] validCharacters, Random rng) throws IOException {
-        this(files,textFileEncoding,miniBatchSize,exampleLength,validCharacters,rng,null);
-    }
-    /**
-     * @param files Path to text files to use for generating samples
-     * @param textFileEncoding Encoding of the text file. Can try Charset.defaultCharset()
-     * @param miniBatchSize Number of examples per mini-batch
-     * @param exampleLength Number of characters in each input/output vector
-     * @param validCharacters Character array of valid characters. Characters not present in this array will be removed
-     * @param rng Random number generator, for repeatability if required
-     * @param commentChars if non-null, lines starting with this string are skipped.
-     * @throws IOException If text file cannot  be loaded
-     */
-    public CharacterIterator(File[] files, Charset textFileEncoding, int miniBatchSize, int exampleLength,
-                             char[] validCharacters, Random rng, String commentChars) throws IOException {
+
+    CharacterIterator(File[] files, int miniBatchSize, int exampleLength,
+                             char[] validCharacters, Random rng) throws IOException {
         if( miniBatchSize <= 0 ) throw new IllegalArgumentException("Invalid miniBatchSize (must be >0)");
         this.validCharacters = validCharacters;
         this.exampleLength = exampleLength;
@@ -86,50 +54,28 @@ public class CharacterIterator implements DataSetIterator {
 
         //Store valid characters is a map for later use in vectorization
         charToIdxMap = new HashMap<>();
-        for( int i=0; i<validCharacters.length; i++ ) charToIdxMap.put(validCharacters[i], i);
+        for( int i=0; i<validCharacters.length; i++ )
+            charToIdxMap.put(validCharacters[i], i);
 
-
+        StringBuilder allLevelsString = new StringBuilder();
+        //Bottom Up Order
         //Load file and convert contents to a char[]
-        boolean newLineValid = charToIdxMap.containsKey('\n');
-        List<String> allLines = new ArrayList<>();
-        for(File file : files) {
-            List<String> lines = Files.readAllLines(file.toPath(), textFileEncoding);
-            if (commentChars != null) {
-                List<String> withoutComments = new ArrayList<>();
-                for (String line : lines) {
-                    if (!line.startsWith(commentChars)) {
-                        withoutComments.add(line);
-                    }
+        for(File file : files) { StringBuilder stringLevel = new StringBuilder();
+            //Copio el archivo a una lista de strings con cada linea
+            List<String> lines = Files.readAllLines(file.toPath());
+            int width = lines.get(0).length();
+            //Crea el arreglo full level que contiene el nivel ordenado de manera bottom up columna x columna
+            String fullLevel = "";
+            for (int i = 0; i < width; i++) {
+                for(int j = 16 - 1; j >= 0; j--){
+                    stringLevel.append(lines.get(j).charAt(i));
                 }
-                lines = withoutComments;
             }
-            allLines.addAll(lines);
+            //Agrego al arreglo de columnas de todos los niveles
+            allLevelsString.append(stringLevel);
         }
-        int maxSize = allLines.size();	//add lines.size() to account for newline characters at end of each line
-        for( String s : allLines ) maxSize += s.length();
-        char[] characters = new char[maxSize];
-        int currIdx = 0;
-        for( String s : allLines ){
-            char[] thisLine = s.toCharArray();
-            for (char aThisLine : thisLine) {
-                if (!charToIdxMap.containsKey(aThisLine)) continue;
-                characters[currIdx++] = aThisLine;
-            }
-            if(newLineValid) characters[currIdx++] = '\n';
-        }
-
-        if( currIdx == characters.length ){
-            fileCharacters = characters;
-        } else {
-            fileCharacters = Arrays.copyOfRange(characters, 0, currIdx);
-        }
-        if( exampleLength >= fileCharacters.length ) throw new IllegalArgumentException("exampleLength="+exampleLength
-                +" cannot exceed number of valid characters in file ("+fileCharacters.length+")");
-
-        int nRemoved = maxSize - fileCharacters.length;
-        System.out.println("Loaded and converted file: " + fileCharacters.length + " valid characters of "
-                + maxSize + " total characters (" + nRemoved + " removed)");
-
+        fileCharacters = allLevelsString.toString().toCharArray();
+        //System.out.println(fileCharacters);
         initializeOffsets();
     }
 
@@ -154,8 +100,6 @@ public class CharacterIterator implements DataSetIterator {
     }
 
     public DataSet next(int num) {
-        if( exampleStartOffsets.size() == 0 ) throw new NoSuchElementException();
-
         int currMinibatchSize = Math.min(num, exampleStartOffsets.size());
         //Allocate space:
         //Note the order here:

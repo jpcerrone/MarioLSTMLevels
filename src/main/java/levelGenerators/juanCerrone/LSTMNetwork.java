@@ -24,12 +24,12 @@ import java.util.Random;
 
 public class LSTMNetwork {
     private File levelsFolder;
-    private static final int sequenceLenght = 500; //Tamaño de la secuencia de cada ejemplo
+    private static final int sequenceLenght = 3230; //Tamaño de la secuencia de cada ejemplo
     private static final int miniBatchSize = 32; //Cantidad de ejemplos que se le alimentará a la red en cada next()
     private static final int tbpttLength = 50;   //Cada cuantos bloque se actualizan los parametros
-    private static final int lstmLayerSize = 50; //Cantidad de cedas lstm por capa
+    private static final int lstmLayerSize = 150; //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    private static final int numEpochs = 8;
+    private static final int numEpochs = 10;
     private MultiLayerNetwork net;
     private CharacterIterator characterIterator;
     private Random rng;
@@ -41,13 +41,10 @@ public class LSTMNetwork {
     public void initialize() throws IOException {
         rng = new Random();
         characterIterator = getLevelIterator(miniBatchSize,sequenceLenght);
-        int i = 0;
-        while(characterIterator.hasNext()){
-            characterIterator.next();
-            i++;
-        }
-        System.out.println("Ejemplos: " + i);
+
+
         int nOut = characterIterator.inputColumns();
+
 
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
@@ -69,8 +66,7 @@ public class LSTMNetwork {
         net.setListeners(new ScoreIterationListener(1)); //Para mostrar el score del gradient descent
 
         //Print the  number of parameters in the network (and for each layer)
-        System.out.println(net.summary());
-
+        //System.out.println(net.summary());
         for( int j=0; j<numEpochs; j++ ){
             System.out.println("Epoch: " + j );
             while(characterIterator.hasNext()){
@@ -82,11 +78,11 @@ public class LSTMNetwork {
         System.out.println("\n\nExample complete");
 
 
+
+
     }
 
     public String getGeneratedLevel(MarioLevelModel model, String initSeed){
-        String level = "";
-        level = level.concat(initSeed);
 
         //Se crea la primer entrada en base al seed de nivel pasado
         INDArray initializationInput = Nd4j.zeros(1,characterIterator.inputColumns(), initSeed.length()); //El 1 es como el minibatch, aca seria un solo ejemplo
@@ -101,27 +97,33 @@ public class LSTMNetwork {
         INDArray output = net.rnnTimeStep(initializationInput);
         output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
 
-        System.out.println(String.valueOf(sampleFromProbDistribution(output)));
+        for (int i = 0; i < init.length; i++) { //todo Seguir aca con initSeeds mas largas
+
+            model.setBlock(0,(15-i),init[i]);
+        }
+        System.out.println(model.getMap());
 
         //add char to level, after sampling
-        for(int i = 0; i < model.getHeight()*model.getWidth() - initSeed.length(); i++){
-            if(((i  + initSeed.length())%model.getWidth()) == 0){
-                level = level.concat("\n");
-            }
-            INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
-            char sample = sampleFromProbDistribution(output);
-            nextInput.putScalar(new int[]{characterIterator.convertCharacterToIndex(sample)}, 1.0f);
-            level = level.concat(String.valueOf(sample));
-            output = net.rnnTimeStep(nextInput);
-        }
-        return level;
-    }
 
+
+        for (int i = 1; i < model.getWidth(); i++) {
+            for (int j = model.getHeight() - 1; j >= 0 ; j--) {
+                INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
+                char sample = sampleFromProbDistribution(output);
+                //input.putScalar(new int[] { 0, LEARNSTRING_CHARS_LIST.indexOf(currentChar), samplePos }, 1);
+                nextInput.putScalar(new int[]{0, characterIterator.convertCharacterToIndex(sample)}, 1.0f); //maybe 0
+                model.setBlock(i,j,sample);
+                output = net.rnnTimeStep(nextInput);
+            }
+
+        }
+        return model.getMap();
+    }
 
     private CharacterIterator getLevelIterator(int miniBatchSize, int sequenceLength) throws IOException {
         char[] validCharacters = MarioLevelModel.getAllTiles();
         File[] levels = levelsFolder.listFiles();
-        return new CharacterIterator(levels, StandardCharsets.UTF_8,
+        return new CharacterIterator(levels,
                 miniBatchSize, sequenceLength, validCharacters, new Random(12345));
     }
 
