@@ -34,22 +34,16 @@ public class CharacterIterator implements DataSetIterator {
     //Maps each character to an index ind the input/output
     private Map<Character,Integer> charToIdxMap;
     //All characters of the input file (after filtering to only those that are valid
-    private char[] fileCharacters;
+    private List<char[]> charLevels;
     //Length of each example/minibatch (number of characters)
-    private int exampleLength;
-    //Size of each minibatch (number of examples)
-    private int miniBatchSize;
     private Random rng;
     //Offsets for the start of each example
-    private LinkedList<Integer> exampleStartOffsets = new LinkedList<>();
+    private List<Integer> randomLevelList = new LinkedList<>();
 
 
-    CharacterIterator(File[] files, int miniBatchSize, int exampleLength,
-                             char[] validCharacters, Random rng) throws IOException {
-        if( miniBatchSize <= 0 ) throw new IllegalArgumentException("Invalid miniBatchSize (must be >0)");
+    CharacterIterator(File[] files, char[] validCharacters, Random rng) throws IOException {
         this.validCharacters = validCharacters;
-        this.exampleLength = exampleLength;
-        this.miniBatchSize = miniBatchSize;
+        this.charLevels = new ArrayList<>();
         this.rng = rng;
 
         //Store valid characters is a map for later use in vectorization
@@ -57,9 +51,9 @@ public class CharacterIterator implements DataSetIterator {
         for( int i=0; i<validCharacters.length; i++ )
             charToIdxMap.put(validCharacters[i], i);
 
-        StringBuilder allLevelsString = new StringBuilder();
+
         //Bottom Up Order
-        //Load file and convert contents to a char[]
+        //Carga el los archivos y los convierte a char[]
         for(File file : files) { StringBuilder stringLevel = new StringBuilder();
             //Copio el archivo a una lista de strings con cada linea
             List<String> lines = Files.readAllLines(file.toPath());
@@ -67,15 +61,12 @@ public class CharacterIterator implements DataSetIterator {
             //Crea el arreglo full level que contiene el nivel ordenado de manera bottom up columna x columna
             String fullLevel = "";
             for (int i = 0; i < width; i++) {
-                for(int j = 16 - 1; j >= 0; j--){
+                for(int j = 15; j >= 0; j--){
                     stringLevel.append(lines.get(j).charAt(i));
                 }
             }
-            //Agrego al arreglo de columnas de todos los niveles
-            allLevelsString.append(stringLevel);
+            charLevels.add(stringLevel.toString().toCharArray());
         }
-        fileCharacters = allLevelsString.toString().toCharArray();
-        //System.out.println(fileCharacters);
         initializeOffsets();
     }
 
@@ -92,42 +83,36 @@ public class CharacterIterator implements DataSetIterator {
     }
 
     public boolean hasNext() {
-        return exampleStartOffsets.size() > 0;
+        return randomLevelList.size() > 0;
     }
 
     public DataSet next() {
-        return next(miniBatchSize);
+        return next(0);
     }
 
     public DataSet next(int num) {
-        int currMinibatchSize = Math.min(num, exampleStartOffsets.size());
         //Allocate space:
         //Note the order here:
         // dimension 0 = number of examples in minibatch
         // dimension 1 = size of each vector (i.e., number of characters)
         // dimension 2 = length of each time series/example
         //Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
-        INDArray input = Nd4j.create(new int[]{currMinibatchSize,validCharacters.length,exampleLength}, 'f');
-        INDArray labels = Nd4j.create(new int[]{currMinibatchSize,validCharacters.length,exampleLength}, 'f');
+        int levelIndex = randomLevelList.remove(randomLevelList.size()-1);
+        INDArray input = Nd4j.create(new int[]{1,validCharacters.length,charLevels.get(levelIndex).length}, 'f');
+        INDArray labels = Nd4j.create(new int[]{1,validCharacters.length,charLevels.get(levelIndex).length}, 'f');
 
-        for( int i=0; i<currMinibatchSize; i++ ){
-            int startIdx = exampleStartOffsets.removeFirst();
-            int endIdx = startIdx + exampleLength;
-            int currCharIdx = charToIdxMap.get(fileCharacters[startIdx]);	//Current input
-            int c=0;
-            for( int j=startIdx+1; j<endIdx; j++, c++ ){
-                int nextCharIdx = charToIdxMap.get(fileCharacters[j]);		//Next character to predict
-                input.putScalar(new int[]{i,currCharIdx,c}, 1.0);
-                labels.putScalar(new int[]{i,nextCharIdx,c}, 1.0);
-                currCharIdx = nextCharIdx;
-            }
+        int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);	//Current input
+        for( int i=0; i<charLevels.get(levelIndex).length; i++){
+            int nextCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[i]);		//Next character to predict
+            input.putScalar(new int[]{0,currCharIdx,i}, 1.0);
+            labels.putScalar(new int[]{0,nextCharIdx,i}, 1.0);
+            currCharIdx = nextCharIdx;
         }
-
         return new DataSet(input,labels);
     }
 
     private int totalExamples() {
-        return (fileCharacters.length-1) / miniBatchSize - 2;
+        return charLevels.size();
     }
 
     public int inputColumns() {
@@ -139,17 +124,20 @@ public class CharacterIterator implements DataSetIterator {
     }
 
     public void reset() {
-        exampleStartOffsets.clear();
+        randomLevelList.clear();
         initializeOffsets();
     }
 
+    @Override
+    public int batch() {
+        return 0;
+    }
+
     private void initializeOffsets() {
-        //This defines the order in which parts of the file are fetched
-        int nMinibatchesPerEpoch = (fileCharacters.length - 1) / exampleLength - 2;   //-2: for end index, and for partial example
-        for (int i = 0; i < nMinibatchesPerEpoch; i++) {
-            exampleStartOffsets.add(i * exampleLength);
-        }
-        Collections.shuffle(exampleStartOffsets, rng);
+        for(int i = 0; i < charLevels.size();i++)
+            randomLevelList.add(i);
+        Collections.shuffle(randomLevelList, rng);
+
     }
 
     public boolean resetSupported() {
@@ -161,13 +149,10 @@ public class CharacterIterator implements DataSetIterator {
         return true;
     }
 
-    public int batch() {
-        return miniBatchSize;
-    }
 
     @SuppressWarnings("unused")
     public int cursor() {
-        return totalExamples() - exampleStartOffsets.size();
+        return totalExamples();
     }
 
     @SuppressWarnings("unused")
