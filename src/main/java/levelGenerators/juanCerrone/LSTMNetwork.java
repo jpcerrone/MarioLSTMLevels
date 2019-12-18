@@ -27,7 +27,7 @@ public class LSTMNetwork {
     private static final int tbpttLength = 64;   //Cada cuantos bloque se actualizan los parametros
     private static final int lstmLayerSize = 128; //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    public static final int numEpochs = 5;
+    public static final int numEpochs = 2;
     private MultiLayerNetwork net;
     private CharacterIterator characterIterator;
     private Random rng;
@@ -81,6 +81,9 @@ public class LSTMNetwork {
     }
 
     public String getGeneratedLevel(MarioLevelModel model, String initSeed){
+        if(initSeed.length()%16 != 0){
+            throw new IllegalArgumentException("initSeed lenght be a multiple of 16");
+        }
 
         //Se crea la primer entrada en base al seed de nivel pasado
         INDArray initializationInput = Nd4j.zeros(1,characterIterator.inputColumns(), initSeed.length()); //El 1 es como el minibatch, aca seria un solo ejemplo
@@ -95,15 +98,16 @@ public class LSTMNetwork {
         INDArray output = net.rnnTimeStep(initializationInput);
         output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
 
-        for (int i = 0; i < init.length; i++) { //todo Seguir aca con initSeeds mas largas
 
-            model.setBlock(0,(15-i),init[i]);
+        for (int i = 0; i < init.length; i++) {
+            model.setBlock(i/16 ,(16-(i%16)) - 1,init[i]);
         }
-        System.out.println(model.getMap());
 
-        //add char to level, after sampling
+        //System.out.println(model.getMap());
 
-        for (int i = 1; i < model.getWidth(); i++) {
+        //Loop de generacion del nivel
+
+        for (int i = init.length/16; i < model.getWidth(); i++) {
             for (int j = model.getHeight() - 1; j >= 0 ; j--) {
                 INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
                 char sample = sampleFromProbDistribution(output);
