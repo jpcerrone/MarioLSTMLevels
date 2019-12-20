@@ -28,38 +28,31 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 
-public class CharacterIterator implements DataSetIterator {
-    //Valid characters
+public class LevelIterator {
+    //Caracteres válidos
     private char[] validCharacters;
-    //Maps each character to an index ind the input/output
+    //Mapa de caracter (bloques) a un indice para los arreglos de entrada y salida
     private Map<Character,Integer> charToIdxMap;
-    //All characters of the input file (after filtering to only those that are valid
+    //Lista con todos los niveles representados como cadenas de caracteres
     private List<char[]> charLevels;
-    //Length of each example/minibatch (number of characters)
-    private Random rng;
-    //Offsets for the start of each example
+    //Lista de indices de los niveles en orden aleatorio
     private List<Integer> randomLevelList = new LinkedList<>();
 
 
-    CharacterIterator(File[] files, char[] validCharacters, Random rng) throws IOException {
+    LevelIterator(File[] files, char[] validCharacters, Random rng) throws IOException {
         this.validCharacters = validCharacters;
         this.charLevels = new ArrayList<>();
-        this.rng = rng;
 
-        //Store valid characters is a map for later use in vectorization
+        //Carga del arreglo de indicies
         charToIdxMap = new HashMap<>();
         for( int i=0; i<validCharacters.length; i++ )
             charToIdxMap.put(validCharacters[i], i);
 
-
         //Bottom Up Order
-        //Carga el los archivos y los convierte a char[]
+        //Carga el los niveles y los convierte a arreglos de caracteres ordenados de forma bottom up, agregandolos a la lista de niveles
         for(File file : files) { StringBuilder stringLevel = new StringBuilder();
-            //Copio el archivo a una lista de strings con cada linea
             List<String> lines = Files.readAllLines(file.toPath());
             int width = lines.get(0).length();
-            //Crea el arreglo full level que contiene el nivel ordenado de manera bottom up columna x columna
-            String fullLevel = "";
             for (int i = 0; i < width; i++) {
                 for(int j = 15; j >= 0; j--){
                     stringLevel.append(lines.get(j).charAt(i));
@@ -67,7 +60,8 @@ public class CharacterIterator implements DataSetIterator {
             }
             charLevels.add(stringLevel.toString().toCharArray());
         }
-        initializeOffsets();
+
+        initializeRandomLevelList();
     }
 
     public char convertIndexToCharacter( int idx ){
@@ -76,10 +70,6 @@ public class CharacterIterator implements DataSetIterator {
 
     public int convertCharacterToIndex( char c ){
         return charToIdxMap.get(c);
-    }
-
-    public char getRandomCharacter(){
-        return validCharacters[(int) (rng.nextDouble()*validCharacters.length)];
     }
 
     public boolean hasNext() {
@@ -91,8 +81,7 @@ public class CharacterIterator implements DataSetIterator {
     }
 
     public DataSet next(int num) {
-        //Allocate space:
-        //Note the order here:
+        //Retorna un DataSet que contiene el próximo nivel como input y los labels correspondientes a cada caracter
         // dimension 0 = number of examples in minibatch
         // dimension 1 = size of each vector (i.e., number of characters)
         // dimension 2 = length of each time series/example
@@ -101,9 +90,9 @@ public class CharacterIterator implements DataSetIterator {
         INDArray input = Nd4j.create(new int[]{1,validCharacters.length,charLevels.get(levelIndex).length}, 'f');
         INDArray labels = Nd4j.create(new int[]{1,validCharacters.length,charLevels.get(levelIndex).length}, 'f');
 
-        int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);	//Current input
+        int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);	//Caracter de entrada actual
         for( int i=0; i<charLevels.get(levelIndex).length; i++){
-            int nextCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[i]);		//Next character to predict
+            int nextCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[i]);		//Proximo caracter a predecir
             input.putScalar(new int[]{0,currCharIdx,i}, 1.0);
             labels.putScalar(new int[]{0,nextCharIdx,i}, 1.0);
             currCharIdx = nextCharIdx;
@@ -125,58 +114,13 @@ public class CharacterIterator implements DataSetIterator {
 
     public void reset() {
         randomLevelList.clear();
-        initializeOffsets();
+        initializeRandomLevelList();
     }
 
-    @Override
-    public int batch() {
-        return 0;
-    }
-
-    private void initializeOffsets() {
+    private void initializeRandomLevelList() {
         for(int i = 0; i < charLevels.size();i++)
             randomLevelList.add(i);
-        Collections.shuffle(randomLevelList, rng);
-
-    }
-
-    public boolean resetSupported() {
-        return true;
-    }
-
-    @Override
-    public boolean asyncSupported() {
-        return true;
-    }
-
-
-    @SuppressWarnings("unused")
-    public int cursor() {
-        return totalExamples();
-    }
-
-    @SuppressWarnings("unused")
-    public int numExamples() {
-        return totalExamples();
-    }
-
-    public void setPreProcessor(DataSetPreProcessor preProcessor) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public DataSetPreProcessor getPreProcessor() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public List<String> getLabels() {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    @Override
-    public void remove() {
-        throw new UnsupportedOperationException();
+        Collections.shuffle(randomLevelList, new Random());
     }
 
 }

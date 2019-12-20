@@ -23,13 +23,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 public class LSTMNetwork {
-    private File levelsFolder;
-    private static final int tbpttLength = 64;   //Cada cuantos bloque se actualizan los parametros
-    private static final int lstmLayerSize = 128; //Cantidad de cedas lstm por capa
+    private File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
+    private static final int tbpttLength = 64;  //Cada cuantos bloques se actualizan los parametros
+    private static final int lstmLayerSize = 128;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    public static final int numEpochs = 2;
+    public static final int numEpochs = 2;  //Cantidad de epochs
     private MultiLayerNetwork net;
-    private CharacterIterator characterIterator;
+    private LevelIterator characterIterator;
     private Random rng;
 
     public LSTMNetwork(String levelsFolder) {
@@ -39,7 +39,6 @@ public class LSTMNetwork {
     public void initialize() throws IOException {
         rng = new Random();
         characterIterator = getLevelIterator();
-
 
         int nOut = characterIterator.inputColumns();
 
@@ -92,21 +91,15 @@ public class LSTMNetwork {
             int idx = characterIterator.convertCharacterToIndex(init[i]);
             initializationInput.putScalar(new int[]{0,idx,i}, 1.0f);
         }
-
-        //Sample from network (and feed samples back into input) one character at a time (for all samples)
-        net.rnnClearPreviousState();
-        INDArray output = net.rnnTimeStep(initializationInput);
-        output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
-
-
         for (int i = 0; i < init.length; i++) {
             model.setBlock(i/16 ,(16-(i%16)) - 1,init[i]);
         }
 
-        //System.out.println(model.getMap());
 
-        //Loop de generacion del nivel
-
+        //Loop de generacion del nivel con la red de a un caracter por vez
+        net.rnnClearPreviousState();
+        INDArray output = net.rnnTimeStep(initializationInput);
+        output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
         for (int i = init.length/16; i < model.getWidth(); i++) {
             for (int j = model.getHeight() - 1; j >= 0 ; j--) {
                 INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
@@ -120,10 +113,10 @@ public class LSTMNetwork {
         return model.getMap();
     }
 
-    private CharacterIterator getLevelIterator() throws IOException {
+    private LevelIterator getLevelIterator() throws IOException {
         char[] validCharacters = MarioLevelModel.getAllTiles();
         File[] levels = levelsFolder.listFiles();
-        return new CharacterIterator(levels, validCharacters, new Random(12345));
+        return new LevelIterator(levels, validCharacters, new Random(seed));
     }
 
     private char sampleFromProbDistribution(INDArray distribution){
