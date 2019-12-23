@@ -92,10 +92,17 @@ public class LevelIterator {
 
         int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);	//Caracter de entrada actual
         for( int i=0; i<charLevels.get(levelIndex).length; i++){
-            int nextCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[i]);		//Proximo caracter a predecir
-            input.putScalar(new int[]{0,currCharIdx,i}, 1.0);
-            labels.putScalar(new int[]{0,nextCharIdx,i}, 1.0);
-            currCharIdx = nextCharIdx;
+            try{
+
+                int nextCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[i]);
+                //Proximo caracter a predecir
+                input.putScalar(new int[]{0,currCharIdx,i}, 1.0);
+                labels.putScalar(new int[]{0,nextCharIdx,i}, 1.0);
+                currCharIdx = nextCharIdx;
+            }
+            catch (NullPointerException e){
+                System.out.println(charLevels.get(levelIndex)[i]);
+            }
         }
         return new DataSet(input,labels);
     }
