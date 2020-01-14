@@ -27,10 +27,11 @@ public class LSTMNetwork {
     private static final int tbpttLength = 64;  //Cada cuantos bloques se actualizan los parametros
     private static final int lstmLayerSize = 128;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    public static final int numEpochs = 2;  //Cantidad de epochs
+    public static final int numEpochs = 200;  //Cantidad de epochs
     private MultiLayerNetwork net;
     private LevelIterator characterIterator;
     private Random rng;
+    private int minibatchSize = 2;
 
     public LSTMNetwork(String levelsFolder) {
         this.levelsFolder = new File(levelsFolder);
@@ -116,7 +117,7 @@ public class LSTMNetwork {
     private LevelIterator getLevelIterator() throws IOException {
         char[] validCharacters = MarioLevelModel.getAllTiles();
         File[] levels = levelsFolder.listFiles();
-        return new LevelIterator(levels, validCharacters, new Random(seed));
+        return new LevelIterator(levels, validCharacters, new Random(seed),minibatchSize);
     }
 
     private char sampleFromProbDistribution(INDArray distribution){

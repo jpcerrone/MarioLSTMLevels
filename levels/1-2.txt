@@ -11,6 +11,6 @@ S----------------------------C---------SoS--SoS-----SS----ooooSS---SoU--SC--g-g-
 S---------@!!!!--------#-#-------------SSS--SSS-----SSSS--SSSSSS---SSS--SS--SSSS-----------------------------TT------------------------g##--------------------
 S--------------------#-#-#-#---#----------------------SS-----------------------------------------------TT----TT-----------SS-----------###--------------------
 S----------------g-#-#-#-#-#---#-#--------------------SS-----------------------------------------------TT----TT----TT-----SS---------g####--SSS---------------
-S--M------------g#-#-#-#-#-#-g-#-#--------kk----------------k--g-g------------------------------g-g-g--TT----TT--g-TT-----SS---------#####---------r--------F-
+S---------------g#-#-#-#-#-#-g-#-#--------kk----------------k--g-g------------------------------g-g-g--TT----TT--g-TT-----SS---------#####---------r--------F-
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX---XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XX--XXXXXXXXXXXX-------XXXXXXXX--XXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX---XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX--XX--XXXXXXXXXXXX-------XXXXXXXX--XXX

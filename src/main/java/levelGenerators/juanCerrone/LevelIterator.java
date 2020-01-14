@@ -21,6 +21,7 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
+import org.opencv.core.Mat;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,12 +38,13 @@ public class LevelIterator {
     private List<char[]> charLevels;
     //Lista de indices de los niveles en orden aleatorio
     private List<Integer> randomLevelList = new LinkedList<>();
+    //Tamaño del minibatch para el entrenamiento
+    private int miniBatchSize;
 
-
-    LevelIterator(File[] files, char[] validCharacters, Random rng) throws IOException {
+    LevelIterator(File[] files, char[] validCharacters, Random rng, int miniBatchSize) throws IOException {
         this.validCharacters = validCharacters;
         this.charLevels = new ArrayList<>();
-
+        this.miniBatchSize = miniBatchSize;
         //Carga del arreglo de indicies
         charToIdxMap = new HashMap<>();
         for( int i=0; i<validCharacters.length; i++ )
@@ -77,35 +79,51 @@ public class LevelIterator {
     }
 
     public DataSet next() {
-        return next(0);
+        return next(miniBatchSize);
     }
 
-    public DataSet next(int num) {
+    public DataSet next(int miniBatchSize) {
         //Retorna un DataSet que contiene el próximo nivel como input y los labels correspondientes a cada caracter
+
+        //Se utiliza para que el ultimo batch contenga los ejemplos que sobran
+        int currMinibatchSize = Math.min(miniBatchSize, randomLevelList.size());
+
+        int maxLevelLenght = 0;
+        for(char[] level : charLevels){
+            maxLevelLenght = Math.max(level.length,maxLevelLenght);
+        }
+
         // dimension 0 = number of examples in minibatch
         // dimension 1 = size of each vector (i.e., number of characters)
         // dimension 2 = length of each time series/example
         //Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
-        int levelIndex = randomLevelList.remove(randomLevelList.size()-1);
-        INDArray input = Nd4j.create(new int[]{1,validCharacters.length,charLevels.get(levelIndex).length}, 'f');
-        INDArray labels = Nd4j.create(new int[]{1,validCharacters.length,charLevels.get(levelIndex).length}, 'f');
 
-        int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);	//Caracter de entrada actual
-        for( int i=0; i<charLevels.get(levelIndex).length; i++){
-            try{
+        INDArray input = Nd4j.create(new int[]{miniBatchSize,validCharacters.length,maxLevelLenght}, 'f');
+        INDArray labels = Nd4j.create(new int[]{miniBatchSize,validCharacters.length,maxLevelLenght}, 'f');
 
-                int nextCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[i]);
-                //Proximo caracter a predecir
-                input.putScalar(new int[]{0,currCharIdx,i}, 1.0);
-                labels.putScalar(new int[]{0,nextCharIdx,i}, 1.0);
-                currCharIdx = nextCharIdx;
-            }
-            catch (NullPointerException e){
-                System.out.println(charLevels.get(levelIndex)[i]);
+        //Arreglos que serán utilizados para el Masking, inicializados en cero
+        INDArray featuresMask = Nd4j.zeros(miniBatchSize, maxLevelLenght);
+        INDArray labelsMask = Nd4j.zeros(miniBatchSize, maxLevelLenght);
+
+
+        for(int m=0; m < miniBatchSize;m++) {
+            int levelIndex = randomLevelList.remove(randomLevelList.size()-1);
+            int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);    //Caracter de entrada actual
+            for (int i = 0; i < maxLevelLenght; i++) {
+                if(i < charLevels.get(levelIndex).length) { //agregado
+                    int nextCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[i]);
+                    //Proximo caracter a predecir
+                    input.putScalar(new int[]{m, currCharIdx, i}, 1.0);
+                    labels.putScalar(new int[]{m, nextCharIdx, i}, 1.0);
+                    //Lo de abajo agregado
+                    featuresMask.putScalar(new int[]{m,i}, 1.0);
+                    labelsMask.putScalar(new int[]{m,i}, 1.0);
+                    currCharIdx = nextCharIdx;
+                }
             }
         }
-        return new DataSet(input,labels);
-    }
+            return new DataSet(input, labels,featuresMask,labelsMask);
+        }
 
     private int totalExamples() {
         return charLevels.size();
