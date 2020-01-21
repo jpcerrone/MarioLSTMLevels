@@ -19,19 +19,21 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 public class LSTMNetwork {
     private static final String MODELSAVEPATH = "model/model.zip";
-    private File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
-    private static final int tbpttLength = 200;  //Cada cuantos bloques se actualizan los parametros
-    private static final int lstmLayerSize = 512;   //Cantidad de cedas lstm por capa
+
+    protected File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
+    protected static final int tbpttLength = 200;  //Cada cuantos bloques se actualizan los parametros
+    protected static final int lstmLayerSize = 512;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    public static final int numEpochs = 100;  //Cantidad de epochs
+    protected static final int numEpochs = 100;  //Cantidad de epochs
     private MultiLayerNetwork net;
     private LevelIterator characterIterator;
     private Random rng;
-    private int minibatchSize = 2;
+    protected int minibatchSize = 2;
 
     public LSTMNetwork(String levelsFolder) {
         this.levelsFolder = new File(levelsFolder);
@@ -46,6 +48,8 @@ public class LSTMNetwork {
     public void initialize() throws IOException {
 
         int nOut = characterIterator.inputColumns();
+
+
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .l2(0.0001)
