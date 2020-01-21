@@ -21,14 +21,19 @@ public class LevelGenerator implements MarioLevelGenerator {
     private LSTMNetwork network;
     private static final String levelsFolder = "levels/original";
 
-    public LevelGenerator() {
+    public LevelGenerator(boolean train) {
         network = new LSTMNetwork(levelsFolder);
-        try {
-            network.initialize();
-            System.out.println("Initialized!");
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (train) {
+            try {
+                network.initialize();
+                System.out.println("Initialized!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        else
+            network.loadModel();
+
     }
 
     @Override

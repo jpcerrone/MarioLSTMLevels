@@ -4,6 +4,8 @@ import engine.core.MarioLevelModel;
 import engine.core.MarioResult;
 import engine.core.MarioTimer;
 
+import java.util.Scanner;
+
 public class GenerateLevel {
     public static void printResults(MarioResult result) {
 	System.out.println("****************************************************************");
@@ -22,10 +24,18 @@ public class GenerateLevel {
     }
     
     public static void main(String[] args) {
-	MarioLevelGenerator generator = new levelGenerators.juanCerrone.LevelGenerator();
-	String level = generator.getGeneratedLevel(new MarioLevelModel(150, 16), new MarioTimer(5*60*60*1000));
-	MarioGame game = new MarioGame();
-	// printResults(game.playGame(level, 200, 0));
-	printResults(game.runGame(new agents.robinBaumgarten.Agent(), level, 20, 0, true));
+		System.out.println("Train net ? (y/n)");
+		Scanner keyboard = new Scanner(System.in);
+		MarioLevelGenerator generator;
+		if(keyboard.nextLine() .equals("y")) {
+			generator = new levelGenerators.juanCerrone.LevelGenerator(true);
+		}
+		else{
+			generator = new levelGenerators.juanCerrone.LevelGenerator(false);
+		}
+		String level = generator.getGeneratedLevel(new MarioLevelModel(150, 16), new MarioTimer(5 * 60 * 60 * 1000));
+		MarioGame game = new MarioGame();
+		// printResults(game.playGame(level, 200, 0));
+		printResults(game.runGame(new agents.robinBaumgarten.Agent(), level, 20, 0, true));
     }
 }

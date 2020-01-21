@@ -19,15 +19,15 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 public class LSTMNetwork {
+    private static final String MODELSAVEPATH = "model/model.zip";
     private File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
-    private static final int tbpttLength = 64;  //Cada cuantos bloques se actualizan los parametros
-    private static final int lstmLayerSize = 128;   //Cantidad de cedas lstm por capa
+    private static final int tbpttLength = 200;  //Cada cuantos bloques se actualizan los parametros
+    private static final int lstmLayerSize = 512;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    public static final int numEpochs = 200;  //Cantidad de epochs
+    public static final int numEpochs = 100;  //Cantidad de epochs
     private MultiLayerNetwork net;
     private LevelIterator characterIterator;
     private Random rng;
@@ -35,15 +35,17 @@ public class LSTMNetwork {
 
     public LSTMNetwork(String levelsFolder) {
         this.levelsFolder = new File(levelsFolder);
+        rng = new Random();
+        try {
+            characterIterator = getLevelIterator();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initialize() throws IOException {
-        rng = new Random();
-        characterIterator = getLevelIterator();
 
         int nOut = characterIterator.inputColumns();
-
-
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .l2(0.0001)
@@ -74,7 +76,7 @@ public class LSTMNetwork {
             characterIterator.reset();
         }
         System.out.println("\n\nExample complete");
-
+        net.save(new File(MODELSAVEPATH), true);
 
 
 
@@ -128,6 +130,15 @@ public class LSTMNetwork {
             i++;
         }
         return characterIterator.convertIndexToCharacter(i);
+    }
+
+    public void loadModel(){
+        File model = new File(MODELSAVEPATH);
+        try {
+            net = MultiLayerNetwork.load(model, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
