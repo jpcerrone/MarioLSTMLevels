@@ -59,7 +59,8 @@ public class LevelGenerator implements MarioLevelGenerator {
                     + network.lstmLayerSize + "blocks "
                     + network.tbpttLength + "tbptt "
                     + trainingTime/1000 /60 + "min "
-                    + network.levelsFolder.listFiles().length + "levels"
+                    + network.levelsFolder.listFiles().length + "levels "
+                    + network.learningRate + " lr"
                     +  ".txt");
             f.write(level);
             f.close();
