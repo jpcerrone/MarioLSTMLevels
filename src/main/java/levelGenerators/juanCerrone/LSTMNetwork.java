@@ -2,6 +2,7 @@ package levelGenerators.juanCerrone;
 
 import engine.core.MarioLevel;
 import engine.core.MarioLevelModel;
+import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -10,6 +11,9 @@ import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.stats.StatsListener;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -27,13 +31,14 @@ public class LSTMNetwork {
 
     protected File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
     protected static final int tbpttLength = 200;  //Cada cuantos bloques se actualizan los parametros
-    protected static final int lstmLayerSize = 512;   //Cantidad de cedas lstm por capa
+    protected static final int lstmLayerSize = 256;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    protected static final int numEpochs = 100;  //Cantidad de epochs
+    protected static final int numEpochs = 50;  //Cantidad de epochs
     private MultiLayerNetwork net;
     private LevelIterator characterIterator;
     private Random rng;
-    protected int minibatchSize = 2;
+    protected int minibatchSize = 1;
+    protected double learningRate = 0.0001;
 
     public LSTMNetwork(String levelsFolder) {
         this.levelsFolder = new File(levelsFolder);
@@ -48,13 +53,15 @@ public class LSTMNetwork {
     public void initialize() throws IOException {
 
         int nOut = characterIterator.inputColumns();
-
-
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .l2(0.0001)
-                .weightInit(WeightInit.XAVIER)
-                .updater(new Adam(0.005))
+                //.l2(0.0001) //swap for dropout
+                .weightInit(WeightInit.XAVIER) //For tanh
+                .updater(new Adam(learningRate))
+                //0.005 og
+                //0.000001 avg150 in 30
+                //0.00001 avg 150 in 5
+                //0.0001 avg 150 in 2
                 .list()
                 .layer(new LSTM.Builder().nIn(characterIterator.inputColumns()).nOut(lstmLayerSize)
                         .activation(Activation.TANH).build())
@@ -67,7 +74,7 @@ public class LSTMNetwork {
 
         net = new MultiLayerNetwork(conf);
         net.init();
-        //net.setListeners(new ScoreIterationListener(1)); //Para mostrar el score del gradient descent
+        net.setListeners(new ScoreIterationListener(50)); //Para mostrar el score del gradient descent
 
         //Print the  number of parameters in the network (and for each layer)
         //System.out.println(net.summary());

@@ -33,7 +33,7 @@ public class PlayLevel {
     
     public static void main(String[] args) {
 	MarioGame game = new MarioGame();
-	printResults(game.playGame(getLevel("levels/jC/200epochs 773.txt"), 200, 0));
+	printResults(game.playGame(getLevel("levels/jC/100epochs 1batches 256blocks 200tbptt 49min 2levels 1.0E-4 lr.txt"), 200, 0));
 	printResults(game.runGame(new agents.robinBaumgarten.Agent(), getLevel("levels/jC/200epochs 773.txt"), 20, 0, true));
     }
 }
