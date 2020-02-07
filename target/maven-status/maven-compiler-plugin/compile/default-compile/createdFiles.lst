@@ -14,6 +14,7 @@ agents\andySloane\MarioStateComparator.class
 agents\spencerSchumann\Agent.class
 agents\spencerSchumann\MovementPlanner$BestTarget.class
 levelGenerators\notch\LevelGenerator.class
+Ventana.class
 engine\effects\FireballEffect.class
 engine\graphics\MarioGraphics.class
 levelGenerators\random\LevelGenerator.class
@@ -32,6 +33,7 @@ levelGenerators\juanCerrone\LevelGenerator.class
 engine\core\MarioAgent.class
 agents\michal\Agent$1.class
 agents\michal\Agent.class
+levelGenerators\juanCerrone\LevelIterator.class
 agents\andySloane\WorldState$WSHashKey.class
 agents\glennHartmann\Agent.class
 engine\core\MarioWorld.class
@@ -40,8 +42,10 @@ agents\andySloane\EnemyState.class
 agents\andySloane\WorldState.class
 engine\sprites\FlowerEnemy.class
 agents\spencerSchumann\MarioState.class
+Ventana$Panel.class
 agents\michal\Agent$STATE.class
 agents\spencerSchumann\PlanRunner$Event.class
+levelGenerators\juanCerrone\LSTMNetwork.class
 agents\spencerSchumann\Tiles.class
 engine\core\MarioTimer.class
 engine\helper\TileFeature.class
@@ -65,9 +69,11 @@ agents\andySloane\Agent.class
 GenerateLevel.class
 agents\trondEllingsen\Agent$Rectangle.class
 agents\random\Agent.class
+Ventana$1.class
 agents\andySloane\WorldState$EnemyObservation.class
 agents\sergeyKarakovskiy\Agent.class
 engine\effects\CoinEffect.class
+VisualizeLevel.class
 agents\andySloane\MarioMath.class
 agents\spencerSchumann\Scene.class
 agents\human\Agent.class

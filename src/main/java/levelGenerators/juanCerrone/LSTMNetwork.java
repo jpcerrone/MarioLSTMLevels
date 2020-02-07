@@ -33,7 +33,7 @@ public class LSTMNetwork {
     protected static final int tbpttLength = 200;  //Cada cuantos bloques se actualizan los parametros
     protected static final int lstmLayerSize = 256;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    protected static final int numEpochs = 50;  //Cantidad de epochs
+    protected static final int numEpochs = 5;  //Cantidad de epochs
     private MultiLayerNetwork net;
     private LevelIterator characterIterator;
     private Random rng;

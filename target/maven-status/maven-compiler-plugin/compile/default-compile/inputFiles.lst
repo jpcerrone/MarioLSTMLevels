@@ -19,6 +19,7 @@ A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\t
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\core\MarioLevelModel.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\helper\EventType.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\helper\GameStatus.java
+A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\VisualizeLevel.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\levelGenerators\benWeber\LevelGenerator.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\sprites\Shell.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\spencerSchumann\EnemyEdge.java
@@ -38,6 +39,7 @@ A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\a
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\andySloane\PrioQ.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\spencerSchumann\BumpableEdge.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\levelGenerators\random\LevelGenerator.java
+A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\Ventana.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\robinBaumgarten\SearchNode.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\core\MarioEffect.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\sprites\Mario.java
@@ -49,6 +51,7 @@ A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\c
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\robinBaumgarten\Agent.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\spencerSchumann\MovementPlanner.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\andySloane\Sensors.java
+A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\levelGenerators\juanCerrone\LSTMNetwork.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\effects\BrickEffect.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\effects\CoinEffect.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\spencerSchumann\PlanRunner.java
@@ -68,6 +71,7 @@ A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\s
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\levelGenerators\juanCerrone\LevelGenerator.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\andySloane\ShellState.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\PlayLevel.java
+A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\levelGenerators\juanCerrone\LevelIterator.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\agents\spencerSchumann\Tiles.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\effects\DustEffect.java
 A:\Users\Juan\Desktop\Programmig Projects\MarioLSTMLevels\src\main\java\engine\sprites\LifeMushroom.java
