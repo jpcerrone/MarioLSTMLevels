@@ -30,10 +30,10 @@ public class LSTMNetwork {
     private static final String MODELSAVEPATH = "model/model.zip";
 
     protected File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
-    protected static final int tbpttLength = 200;  //Cada cuantos bloques se actualizan los parametros
+    protected static final int tbpttLength = 0;  //Cada cuantos bloques se actualizan los parametros
     protected static final int lstmLayerSize = 256;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    protected static final int numEpochs = 5;  //Cantidad de epochs
+    protected static final int numEpochs = 100;  //Cantidad de epochs
     private MultiLayerNetwork net;
     private LevelIterator characterIterator;
     private Random rng;
@@ -69,12 +69,16 @@ public class LSTMNetwork {
                         .activation(Activation.TANH).build())
                 .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
                         .nIn(lstmLayerSize).nOut(nOut).build())
-                .backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
+                //.backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
                 .build();
+        if(tbpttLength != 0){
+            conf.setBackpropType(BackpropType.TruncatedBPTT);
+            conf.setTbpttBackLength(tbpttLength);
+        }
 
         net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(50)); //Para mostrar el score del gradient descent
+        net.setListeners(new ScoreIterationListener(1)); //Para mostrar el score del gradient descent
 
         //Print the  number of parameters in the network (and for each layer)
         //System.out.println(net.summary());

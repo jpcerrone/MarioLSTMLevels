@@ -102,10 +102,11 @@ public class Ventana extends JFrame implements KeyListener {
                         isEnemy = true;
                         break;
                     }
-                    case MarioLevelModel.RED_KOOPA:
+                    case MarioLevelModel.RED_KOOPA: {
                         sprite = Assets.enemies[0][2];
                         isEnemy = true;
                         break;
+                    }
                     case MarioLevelModel.SPECIAL_BRICK: {
                         sprite = Assets.items[0][0];
                         imgGraphics.drawImage(Assets.level[6][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
