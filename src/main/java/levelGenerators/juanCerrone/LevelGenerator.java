@@ -54,6 +54,7 @@ public class LevelGenerator implements MarioLevelGenerator {
     private void saveFile(String level){
         try {
             FileWriter f = new FileWriter("levels/jC/"
+                    + network.getScore() + "score "
                     + LSTMNetwork.numEpochs + "epochs "
                     + network.minibatchSize + "batches "
                     + LSTMNetwork.lstmLayerSize + "blocks "

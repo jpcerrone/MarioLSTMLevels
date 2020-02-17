@@ -36,6 +36,20 @@ public class LevelIterator {
 
         //Bottom Up Order
         //Carga el los niveles y los convierte a arreglos de caracteres ordenados de forma bottom up, agregandolos a la lista de niveles
+        for(int f = 1; f <= miniBatchSize;f++){
+            StringBuilder stringLevel = new StringBuilder();
+            //System.out.println(files[f%(files.length)]);
+            List<String> lines = Files.readAllLines(files[f%(files.length)].toPath());
+            int width = lines.get(0).length();
+            for (int i = 0; i < width; i++) {
+                for(int j = 15; j >= 0; j--){
+                    stringLevel.append(lines.get(j).charAt(i));
+                }
+            }
+            charLevels.add(stringLevel.toString().toCharArray());
+        }
+        System.out.println("LEVELS: " + charLevels.size());
+        /*
         for(File file : files) { StringBuilder stringLevel = new StringBuilder();
             List<String> lines = Files.readAllLines(file.toPath());
             int width = lines.get(0).length();
@@ -46,7 +60,7 @@ public class LevelIterator {
             }
             charLevels.add(stringLevel.toString().toCharArray());
         }
-
+*/
         initializeRandomLevelList();
     }
 
@@ -82,15 +96,15 @@ public class LevelIterator {
         // dimension 2 = length of each time series/example
         //Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
 
-        INDArray input = Nd4j.create(new int[]{miniBatchSize,validCharacters.length,maxLevelLenght}, 'f');
-        INDArray labels = Nd4j.create(new int[]{miniBatchSize,validCharacters.length,maxLevelLenght}, 'f');
+        INDArray input = Nd4j.create(new int[]{currMinibatchSize,validCharacters.length,maxLevelLenght}, 'f');
+        INDArray labels = Nd4j.create(new int[]{currMinibatchSize,validCharacters.length,maxLevelLenght}, 'f');
 
         //Arreglos que serán utilizados para el Masking, inicializados en cero
-        INDArray featuresMask = Nd4j.zeros(miniBatchSize, maxLevelLenght);
-        INDArray labelsMask = Nd4j.zeros(miniBatchSize, maxLevelLenght);
+        INDArray featuresMask = Nd4j.zeros(currMinibatchSize, maxLevelLenght);
+        INDArray labelsMask = Nd4j.zeros(currMinibatchSize, maxLevelLenght);
 
 
-        for(int m=0; m < miniBatchSize;m++) {
+        for(int m=0; m < currMinibatchSize;m++) {
             int levelIndex = randomLevelList.remove(randomLevelList.size()-1);
             int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);    //Caracter de entrada actual
             for (int i = 0; i < maxLevelLenght; i++) {

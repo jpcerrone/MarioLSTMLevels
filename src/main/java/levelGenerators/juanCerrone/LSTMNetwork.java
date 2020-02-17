@@ -31,14 +31,14 @@ public class LSTMNetwork {
 
     protected File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
     protected static final int tbpttLength = 0;  //Cada cuantos bloques se actualizan los parametros
-    protected static final int lstmLayerSize = 256;   //Cantidad de cedas lstm por capa
+    protected static final int lstmLayerSize = 128;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    protected static final int numEpochs = 100;  //Cantidad de epochs
+    protected static final int numEpochs = 1000;  //Cantidad de epochs
     private MultiLayerNetwork net;
     private LevelIterator characterIterator;
     private Random rng;
     protected int minibatchSize = 1;
-    protected double learningRate = 0.0001;
+    protected double learningRate = 0.01;
 
     public LSTMNetwork(String levelsFolder) {
         this.levelsFolder = new File(levelsFolder);
@@ -67,7 +67,9 @@ public class LSTMNetwork {
                         .activation(Activation.TANH).build())
                 .layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
                         .activation(Activation.TANH).build())
-                .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.MCXENT).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+                /*.layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+                        .activation(Activation.TANH).build())*/
+                .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
                         .nIn(lstmLayerSize).nOut(nOut).build())
                 //.backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
                 .build();
@@ -145,6 +147,10 @@ public class LSTMNetwork {
             i++;
         }
         return characterIterator.convertIndexToCharacter(i);
+    }
+
+    public double getScore(){
+        return net.score();
     }
 
     public void loadModel(){
