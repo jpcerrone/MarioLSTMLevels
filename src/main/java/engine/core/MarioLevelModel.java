@@ -23,6 +23,8 @@ public class MarioLevelModel {
     public static final char PIPE = 't';
     public static final char PIPE_FLOWER = 'T';
     public static final char BULLET_BILL = '*';
+    public static final char BULLET_BILL_TOP = 'b';
+    public static final char BULLET_BILL_BOTTOM = 'B';
     public static final char PLATFORM_BACKGROUND = '|';
     public static final char PLATFORM = '%';
     
@@ -45,7 +47,7 @@ public class MarioLevelModel {
         return new char[]{MARIO_START, MARIO_EXIT, EMPTY, GROUND, PYRAMID_BLOCK,
                 NORMAL_BRICK, COIN_BRICK, LIFE_BRICK, SPECIAL_BRICK,
                 SPECIAL_QUESTION_BLOCK, COIN_QUESTION_BLOCK, COIN_HIDDEN_BLOCK, LIFE_HIDDEN_BLOCK,USED_BLOCK, COIN,
-                PIPE, PIPE_FLOWER, BULLET_BILL, PLATFORM_BACKGROUND, PLATFORM, GOOMBA, GOOMBA_WINGED, RED_KOOPA, RED_KOOPA_WINGED,
+                PIPE, PIPE_FLOWER, BULLET_BILL,BULLET_BILL_TOP, BULLET_BILL_BOTTOM, PLATFORM_BACKGROUND, PLATFORM, GOOMBA, GOOMBA_WINGED, RED_KOOPA, RED_KOOPA_WINGED,
                 GREEN_KOOPA, GREEN_KOOPA_WINGED, SPIKY, SPIKY_WINGED};
     }
     /**

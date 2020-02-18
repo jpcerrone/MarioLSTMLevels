@@ -136,9 +136,14 @@ public class Ventana extends JFrame implements KeyListener {
                         isEnemy = true;
                         break;
                     }
-                    case MarioLevelModel.BULLET_BILL: {
-                        sprite = Assets.enemies[0][5];
-                        isEnemy = true;
+                    case MarioLevelModel.BULLET_BILL_TOP: {
+                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        sprite = Assets.level[3][0];
+                        break;
+                    }
+                    case MarioLevelModel.BULLET_BILL_BOTTOM: {
+                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        sprite = Assets.level[4][0];
                         break;
                     }
                     case MarioLevelModel.USED_BLOCK: {
@@ -188,6 +193,7 @@ public class Ventana extends JFrame implements KeyListener {
                         imgGraphics.drawImage(Assets.enemies[0][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
                         break;
                     }
+
                     default:
                         sprite = Assets.level[6][2];
                 }

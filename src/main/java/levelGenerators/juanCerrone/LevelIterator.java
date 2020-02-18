@@ -36,20 +36,6 @@ public class LevelIterator {
 
         //Bottom Up Order
         //Carga el los niveles y los convierte a arreglos de caracteres ordenados de forma bottom up, agregandolos a la lista de niveles
-        for(int f = 1; f <= miniBatchSize;f++){
-            StringBuilder stringLevel = new StringBuilder();
-            //System.out.println(files[f%(files.length)]);
-            List<String> lines = Files.readAllLines(files[f%(files.length)].toPath());
-            int width = lines.get(0).length();
-            for (int i = 0; i < width; i++) {
-                for(int j = 15; j >= 0; j--){
-                    stringLevel.append(lines.get(j).charAt(i));
-                }
-            }
-            charLevels.add(stringLevel.toString().toCharArray());
-        }
-        System.out.println("LEVELS: " + charLevels.size());
-        /*
         for(File file : files) { StringBuilder stringLevel = new StringBuilder();
             List<String> lines = Files.readAllLines(file.toPath());
             int width = lines.get(0).length();
@@ -60,7 +46,7 @@ public class LevelIterator {
             }
             charLevels.add(stringLevel.toString().toCharArray());
         }
-*/
+        System.out.println("levels: " + charLevels.size());
         initializeRandomLevelList();
     }
 
@@ -107,17 +93,17 @@ public class LevelIterator {
         for(int m=0; m < currMinibatchSize;m++) {
             int levelIndex = randomLevelList.remove(randomLevelList.size()-1);
             int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);    //Caracter de entrada actual
-            for (int i = 0; i < maxLevelLenght; i++) {
-                if(i < charLevels.get(levelIndex).length) { //agregado
+            for (int i = 0; i < charLevels.get(levelIndex).length; i++) {
+                if(i < charLevels.get(levelIndex).length) {
                     int nextCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[i]);
                     //Proximo caracter a predecir
                     input.putScalar(new int[]{m, currCharIdx, i}, 1.0);
                     labels.putScalar(new int[]{m, nextCharIdx, i}, 1.0);
-                    //Lo de abajo agregado
+
                     featuresMask.putScalar(new int[]{m,i}, 1.0);
                     labelsMask.putScalar(new int[]{m,i}, 1.0);
                     currCharIdx = nextCharIdx;
-                }
+               }
             }
         }
             return new DataSet(input, labels,featuresMask,labelsMask);
