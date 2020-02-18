@@ -1,8 +1,6 @@
 package levelGenerators.juanCerrone;
 
-import engine.core.MarioLevel;
 import engine.core.MarioLevelModel;
-import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -10,10 +8,7 @@ import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
-import org.deeplearning4j.ui.api.UIServer;
-import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.optimize.listeners.ParamAndGradientIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -28,6 +23,7 @@ import java.util.Random;
 
 public class LSTMNetwork {
     private static final String MODELSAVEPATH = "model/model.zip";
+    private static final String LOGSAVEPATH = "log.csv";
 
     protected File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
     protected static final int tbpttLength = 0;  //Cada cuantos bloques se actualizan los parametros
@@ -55,7 +51,7 @@ public class LSTMNetwork {
         int nOut = characterIterator.inputColumns();
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                //.l2(0.0001) //swap for dropout
+                //.l2(0.0001) //swap for dropout, puede funcionar para que deje de explotar
                 .weightInit(WeightInit.XAVIER) //For tanh
                 .updater(new Adam(learningRate))
                 //0.005 og
@@ -80,8 +76,8 @@ public class LSTMNetwork {
 
         net = new MultiLayerNetwork(conf);
         net.init();
-        net.setListeners(new ScoreIterationListener(1)); //Para mostrar el score del gradient descent
-
+        //net.setListeners(new ScoreIterationListener(200)); //Para mostrar el score del gradient descent
+        net.setListeners(new ParamAndGradientIterationListener(1, true, false, false, false, false, true, false, new File(LOGSAVEPATH), ","));
         //Print the  number of parameters in the network (and for each layer)
         //System.out.println(net.summary());
         for( int j=0; j<numEpochs; j++ ){
