@@ -19,26 +19,33 @@ import java.util.List;
 import static java.awt.event.KeyEvent.*;
 
 public class Ventana extends JFrame implements KeyListener {
-    private JPanel panel;
+    //Dimensiones de la pantalla
     private Dimension screenSize;
+    //Imágen sobre la cual se dibujan los niveles
     private Image img;
+    //Ancho y alto del nivel
     private int levelWidth;
     private int levelHeight;
+    //Desplazamiento del nivel en el eje X, para poder scrollear el nivel
     private int xShift;
-
-    private final String levelsFolderPath = "levels/jC";
+    //Carpeta que contiene los niveles a dibujar
+    private static final String levelsFolderPath = "levels/jC";
+    //Nivel actual
     private int currentLevel;
-    private Ventana ventana;
+    //Arreglo que contiene todos los nvieles
     private File[] levels;
-
+    //Tamaño en píxeles de cada bloque
     private static final int BLOCKSIZE = 16;
+    //Posicion y donde comienza la bandera
     private static final int FLAG_START = 4;
+    //Posicion y donde termina la bandera
     private static final int FLAG_END = 14;
 
+    //Inicializa la ventana y carga el primer nivel
     Ventana() throws IOException {
         super("Level Visualizer");
         xShift = 0;
-        panel = new Panel();
+        JPanel panel = new Panel();
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.setSize(screenSize.width,screenSize.height);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -48,11 +55,11 @@ public class Ventana extends JFrame implements KeyListener {
         File levelFolder = new File(levelsFolderPath);
         levels = levelFolder.listFiles();
         currentLevel = 0;
-
         loadLevel();
         addKeyListener(this);
         setFocusTraversalKeysEnabled(false);
     }
+    //Carga un nuevo nivel
     private void loadLevel() throws IOException {
         File level = levels[currentLevel];
         List<String> lines = Files.readAllLines(level.toPath());
@@ -60,6 +67,7 @@ public class Ventana extends JFrame implements KeyListener {
         BufferedImage img = new BufferedImage(width*BLOCKSIZE,BLOCKSIZE*BLOCKSIZE,BufferedImage.TYPE_INT_RGB);
         Graphics imgGraphics = img.getGraphics();
         List<Integer> flags = new ArrayList<>(); //List of all flag coordinates, given by the y component
+        //Dibuja cada bloque dependiendo de su tipo
         for(int j = 0 ; j < lines.size() ;j++){
             String line = lines.get(j);
             for(int i = 0; i < width;i++){
@@ -229,8 +237,8 @@ public class Ventana extends JFrame implements KeyListener {
     }
 
     @Override
+    //Control de teclado
     public void keyPressed(KeyEvent e) {
-        //keyboard controls
         switch (e.getKeyCode()) {
             case VK_RIGHT:
                 if(xShift < levelWidth-screenSize.width)
@@ -262,7 +270,6 @@ public class Ventana extends JFrame implements KeyListener {
                 break;
         }
         repaint();
-
     }
 
     @Override

@@ -18,9 +18,14 @@ import java.util.Random;
 import static engine.core.MarioLevelModel.*;
 
 public class LevelGenerator implements MarioLevelGenerator {
+    //Red LSTM
     private LSTMNetwork network;
+    //Carpeta donde se encuentran los niveles para el entrenamiento
     private static final String levelsFolder = "levels/original";
+    //Variable para guardar el tiempo de entrenamiento
     private long trainingTime;
+
+    //Constructor que genera un nivel, si train es true entrena la red antes de hacerlo, si no, se genera el nivel en base a última red generada
     public LevelGenerator(boolean train) {
         network = new LSTMNetwork(levelsFolder);
         if (train) {
@@ -38,19 +43,18 @@ public class LevelGenerator implements MarioLevelGenerator {
 
     }
 
+    //Genera un nivel bloque por bloque y se guarda en un archivo. Se le envía un seed que describe el comienzo del nivel
     @Override
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
-
-        //Genera un nivel bloque por bloque
         model.clearMap();
         String level =  network.getGeneratedLevel(model,"XX--------------XX--------------XX--------------XX--------------");
         System.out.println(level);
-
         saveFile(level);
         return level;
 
-
     }
+
+    //Guarda el archivo del nivel con las stats del mismo en su nombre
     private void saveFile(String level){
         try {
             FileWriter f = new FileWriter("levels/jC/"
@@ -70,7 +74,6 @@ public class LevelGenerator implements MarioLevelGenerator {
         }
 
     }
-
 
     @Override
     public String getGeneratorName() {

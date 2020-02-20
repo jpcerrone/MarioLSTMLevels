@@ -24,6 +24,8 @@ public class LevelIterator {
     private List<Integer> randomLevelList = new LinkedList<>();
     //Tamaño del minibatch para el entrenamiento
     private int miniBatchSize;
+    //Altura de los niveles
+    private static final int LEVEL_HEIGHT = 16;
 
     LevelIterator(File[] files, char[] validCharacters, Random rng, int miniBatchSize) throws IOException {
         this.validCharacters = validCharacters;
@@ -40,13 +42,13 @@ public class LevelIterator {
             List<String> lines = Files.readAllLines(file.toPath());
             int width = lines.get(0).length();
             for (int i = 0; i < width; i++) {
-                for(int j = 15; j >= 0; j--){
+                for(int j = LEVEL_HEIGHT - 1; j >= 0; j--){
                     stringLevel.append(lines.get(j).charAt(i));
                 }
             }
             charLevels.add(stringLevel.toString().toCharArray());
         }
-        System.out.println("levels: " + charLevels.size());
+        //Agrega los niveles a una lista que se ordena aleatoriamente
         initializeRandomLevelList();
     }
 
@@ -66,9 +68,8 @@ public class LevelIterator {
         return next(miniBatchSize);
     }
 
+    //Retorna un DataSet que contiene el próximo nivel como input y los labels correspondientes a cada caracter
     public DataSet next(int miniBatchSize) {
-        //Retorna un DataSet que contiene el próximo nivel como input y los labels correspondientes a cada caracter
-
         //Se utiliza para que el ultimo batch contenga los ejemplos que sobran
         int currMinibatchSize = Math.min(miniBatchSize, randomLevelList.size());
 
@@ -89,7 +90,6 @@ public class LevelIterator {
         INDArray featuresMask = Nd4j.zeros(currMinibatchSize, maxLevelLenght);
         INDArray labelsMask = Nd4j.zeros(currMinibatchSize, maxLevelLenght);
 
-
         for(int m=0; m < currMinibatchSize;m++) {
             int levelIndex = randomLevelList.remove(randomLevelList.size()-1);
             int currCharIdx = charToIdxMap.get(charLevels.get(levelIndex)[0]);    //Caracter de entrada actual
@@ -106,8 +106,8 @@ public class LevelIterator {
                }
             }
         }
-            return new DataSet(input, labels,featuresMask,labelsMask);
-        }
+        return new DataSet(input, labels,featuresMask,labelsMask);
+    }
 
     private int totalExamples() {
         return charLevels.size();

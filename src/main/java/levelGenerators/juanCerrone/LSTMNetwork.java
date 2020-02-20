@@ -15,26 +15,37 @@ import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 public class LSTMNetwork {
+    //Directorio que contiene el modelo de la última red generada
     private static final String MODELSAVEPATH = "model/model.zip";
+    //Direcotrio que contiene el log del score de la última red generada
     private static final String LOGSAVEPATH = "log.csv";
-
-    protected File levelsFolder;  //Carpeta que contiene los niveles usados para entrenar
-    protected static final int tbpttLength = 0;  //Cada cuantos bloques se actualizan los parametros
-    protected static final int lstmLayerSize = 128;   //Cantidad de cedas lstm por capa
+    //Carpeta que contiene los niveles usados para entrenar
+    protected File levelsFolder;
+    //Cada cuantos bloques se actualizan los parametros
+    protected static final int tbpttLength = 0;
+    //Cantidad de cedas lstm por capa
+    protected static final int lstmLayerSize = 128;
+    //Seed
     private static final long seed = 12345;
-    protected static final int numEpochs = 1000 ; //Cantidad de epochs
+    //Cantidad de epochs
+    protected static final int numEpochs = 50 ;
+    //Referencia a la red
     private MultiLayerNetwork net;
+    //Iterador que permite recorrer los niveles
     private LevelIterator characterIterator;
+    //Generador de numero aleatorios
     private Random rng;
+    //Tamaño del minibatch (Ejemplos que entrenan en paralelo)
     protected int minibatchSize = 1;
+    //Learning rate
     protected double learningRate = 0.01;
+    //Altura de los niveles
+    private static final int LEVEL_HEIGHT = 16;
 
     public LSTMNetwork(String levelsFolder) {
         this.levelsFolder = new File(levelsFolder);
@@ -46,29 +57,23 @@ public class LSTMNetwork {
         }
     }
 
+    //Configura la red y realiza el entrenamiento
     public void initialize() throws IOException {
-
         int nOut = characterIterator.inputColumns();
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .l2(0.0001) //swap for dropout, puede funcionar para que deje de explotar
                 .weightInit(WeightInit.XAVIER) //For tanh
                 .updater(new Adam(learningRate))
-                //0.005 og
-                //0.000001 avg150 in 30
-                //0.00001 avg 150 in 5
-                //0.0001 avg 150 in 2
                 .list()
                 .layer(new LSTM.Builder().nIn(characterIterator.inputColumns()).nOut(lstmLayerSize)
                         .activation(Activation.TANH).build())
                 .layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
                         .activation(Activation.TANH).build())
-                /*.layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
-                        .activation(Activation.TANH).build())*/
-                .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX)        //MCXENT + softmax for classification
+                .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX)
                         .nIn(lstmLayerSize).nOut(nOut).build())
-                //.backpropType(BackpropType.TruncatedBPTT).tBPTTForwardLength(tbpttLength).tBPTTBackwardLength(tbpttLength)
                 .build();
+        //Si se quiere usar tbtt se debe indicar un numero mayor a 0 en tal parámetro
         if(tbpttLength != 0){
             conf.setBackpropType(BackpropType.TruncatedBPTT);
             conf.setTbpttBackLength(tbpttLength);
@@ -76,10 +81,12 @@ public class LSTMNetwork {
 
         net = new MultiLayerNetwork(conf);
         net.init();
-        //net.setListeners(new ScoreIterationListener(200)); //Para mostrar el score del gradient descent
+        //Para mostrar el score del gradient descent
+        //net.setListeners(new ScoreIterationListener(200));
+        //Logue los scores en un archivo
         net.setListeners(new ParamAndGradientIterationListener(1, true, false, false, false, false, true, false, new File(LOGSAVEPATH), ","));
-        //Print the  number of parameters in the network (and for each layer)
-        //System.out.println(net.summary());
+
+        //Entrena la red durante la cantidad de epochs especificada y se guarda el modelo de la misma en un archivo
         for( int j=0; j<numEpochs; j++ ){
             System.out.println("Epoch: " + j );
             while(characterIterator.hasNext()){
@@ -90,27 +97,24 @@ public class LSTMNetwork {
         }
         System.out.println("\n\nExample complete");
         net.save(new File(MODELSAVEPATH), true);
-
-
-
     }
 
+    //Genera un nivel usando la red ya entrenada
     public String getGeneratedLevel(MarioLevelModel model, String initSeed){
-        if(initSeed.length()%16 != 0){
-            throw new IllegalArgumentException("initSeed lenght be a multiple of 16");
+        if(initSeed.length()%LEVEL_HEIGHT != 0){
+            throw new IllegalArgumentException("initSeed debe ser múltiplo de 16");
         }
 
         //Se crea la primer entrada en base al seed de nivel pasado
-        INDArray initializationInput = Nd4j.zeros(1,characterIterator.inputColumns(), initSeed.length()); //El 1 es como el minibatch, aca seria un solo ejemplo
+        INDArray initializationInput = Nd4j.zeros(1,characterIterator.inputColumns(), initSeed.length()); //El 1 es como el minibatch, aca seria un solo ejemplo todo ver si cambia con el minibatch
         char[] init = initSeed.toCharArray();
-        for( int i=0; i<init.length; i++ ){ //PROBAR init.lenght - 1 a ver si arregla el problema de generar el nivel más arriba
+        for( int i=0; i<init.length; i++ ){
             int idx = characterIterator.convertCharacterToIndex(init[i]);
             initializationInput.putScalar(new int[]{0,idx,i}, 1.0f);
         }
         for (int i = 0; i < init.length; i++) {
-            model.setBlock(i/16 ,(16-(i%16)) - 1,init[i]);
+            model.setBlock(i/LEVEL_HEIGHT ,(LEVEL_HEIGHT-(i%LEVEL_HEIGHT)) - 1,init[i]);
         }
-
 
         //Loop de generacion del nivel con la red de a un caracter por vez
         net.rnnClearPreviousState();
@@ -149,6 +153,7 @@ public class LSTMNetwork {
         return net.score();
     }
 
+    //Carga el modelo de red de un archivo
     public void loadModel(){
         File model = new File(MODELSAVEPATH);
         try {
