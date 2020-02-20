@@ -29,7 +29,7 @@ public class LSTMNetwork {
     protected static final int tbpttLength = 0;  //Cada cuantos bloques se actualizan los parametros
     protected static final int lstmLayerSize = 128;   //Cantidad de cedas lstm por capa
     private static final long seed = 12345;
-    protected static final int numEpochs = 1000;  //Cantidad de epochs
+    protected static final int numEpochs = 1000 ; //Cantidad de epochs
     private MultiLayerNetwork net;
     private LevelIterator characterIterator;
     private Random rng;
@@ -51,7 +51,7 @@ public class LSTMNetwork {
         int nOut = characterIterator.inputColumns();
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                //.l2(0.0001) //swap for dropout, puede funcionar para que deje de explotar
+                .l2(0.0001) //swap for dropout, puede funcionar para que deje de explotar
                 .weightInit(WeightInit.XAVIER) //For tanh
                 .updater(new Adam(learningRate))
                 //0.005 og

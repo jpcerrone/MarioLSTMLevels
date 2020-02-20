@@ -103,7 +103,7 @@ public class Ventana extends JFrame implements KeyListener {
                         break;
                     }
                     case MarioLevelModel.RED_KOOPA: {
-                        sprite = Assets.enemies[0][2];
+                        sprite = Assets.enemies[0][0];
                         isEnemy = true;
                         break;
                     }
@@ -180,7 +180,7 @@ public class Ventana extends JFrame implements KeyListener {
                         break;
                     }
                     case MarioLevelModel.RED_KOOPA_WINGED: {
-                        sprite = Assets.enemies[0][2];
+                        sprite = Assets.enemies[0][0];
                         imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         imgGraphics.drawImage(sprite, (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
                         imgGraphics.drawImage(Assets.enemies[0][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
@@ -193,7 +193,14 @@ public class Ventana extends JFrame implements KeyListener {
                         imgGraphics.drawImage(Assets.enemies[0][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
                         break;
                     }
-
+                    case MarioLevelModel.PLATFORM_BACKGROUND:{
+                        sprite = Assets.level[7][5];
+                        break;
+                    }
+                    case MarioLevelModel.PLATFORM:{
+                        sprite = Assets.level[6][5];
+                        break;
+                    }
                     default:
                         sprite = Assets.level[6][2];
                 }
