@@ -15,15 +15,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native-platform</artifactId>
-            <version>1.0.0-beta6</version>
-        </dependency>
-        <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-core</artifactId>
+            <artifactId>deeplearning4j-cuda-10.2</artifactId>
             <version>1.0.0-beta6</version>
         </dependency>
+
         <dependency>
             <groupId>org.datavec</groupId>
             <artifactId>datavec-api</artifactId>

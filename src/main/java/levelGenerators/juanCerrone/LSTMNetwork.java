@@ -33,7 +33,7 @@ public class LSTMNetwork {
     //Seed
     private static final long seed = 12345;
     //Cantidad de epochs
-    protected static final int numEpochs = 50 ;
+    protected static final int numEpochs = 100 ;
     //Referencia a la red
     private MultiLayerNetwork net;
     //Iterador que permite recorrer los niveles
