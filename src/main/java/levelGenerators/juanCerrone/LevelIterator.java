@@ -13,7 +13,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 
-public class LevelIterator {
+public class LevelIterator implements Iterator{
     //Caracteres válidos
     private char[] validCharacters;
     //Mapa de caracter (bloques) a un indice para los arreglos de entrada y salida

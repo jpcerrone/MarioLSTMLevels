@@ -3,31 +3,26 @@ package levelGenerators.juanCerrone;
 import engine.core.MarioLevelGenerator;
 import engine.core.MarioLevelModel;
 import engine.core.MarioTimer;
-import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
-import static engine.core.MarioLevelModel.*;
+
 
 public class LevelGenerator implements MarioLevelGenerator {
     //Red LSTM
     private LSTMNetwork network;
     //Carpeta donde se encuentran los niveles para el entrenamiento
-    private static final String levelsFolder = "levels/original";
+    private static final String trainingLevelsFolder = "levels/original/";
+    //Carpeta donde se guardan los niveles generados
+    private static final String generatedLevelsFolder = "levels/jC/";
     //Variable para guardar el tiempo de entrenamiento
     private long trainingTime;
 
     //Constructor que genera un nivel, si train es true entrena la red antes de hacerlo, si no, se genera el nivel en base a última red generada
     public LevelGenerator(boolean train) {
-        network = new LSTMNetwork(levelsFolder);
+        network = new LSTMNetwork(trainingLevelsFolder);
         if (train) {
         try {
             trainingTime = System.currentTimeMillis();
@@ -47,7 +42,7 @@ public class LevelGenerator implements MarioLevelGenerator {
     @Override
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
         model.clearMap();
-        String level =  network.getGeneratedLevel(model,"XX--------------XX--------------XX--------------XX--------------");
+        String level =  network.getGeneratedLevel(model,Seed.TREETOPS);
         System.out.println(level);
         saveFile(level);
         return level;
@@ -56,17 +51,21 @@ public class LevelGenerator implements MarioLevelGenerator {
 
     //Guarda el archivo del nivel con las stats del mismo en su nombre
     private void saveFile(String level){
+        File trainingLevelsFolderFile = new File(trainingLevelsFolder);
+        File generatedLevelsFolderFile = new File(generatedLevelsFolder);
         try {
-            FileWriter f = new FileWriter("levels/jC/"
-                    + network.getScore() + "score "
+            String filename = generatedLevelsFolder
+                    + "(" + generatedLevelsFolderFile.listFiles().length + ") " +
+                    + network.getScore() + " score "
                     + LSTMNetwork.numEpochs + "epochs "
                     + network.minibatchSize + "batches "
                     + LSTMNetwork.lstmLayerSize + "blocks "
                     + LSTMNetwork.tbpttLength + "tbptt "
                     + trainingTime/1000 /60 + "min "
-                    + network.levelsFolder.listFiles().length + "levels "
+                    + trainingLevelsFolderFile.listFiles().length + "levels "
                     + network.learningRate + " lr"
-                    +  ".txt");
+                    +  ".txt";
+            FileWriter f = new FileWriter(filename);
             f.write(level);
             f.close();
         } catch (IOException e) {
