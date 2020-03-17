@@ -83,8 +83,8 @@ public class LevelIterator implements Iterator{
         // dimension 2 = length of each time series/example
         //Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
 
-        INDArray input = Nd4j.create(new int[]{currMinibatchSize,validCharacters.length,maxLevelLenght}, 'f');
-        INDArray labels = Nd4j.create(new int[]{currMinibatchSize,validCharacters.length,maxLevelLenght}, 'f');
+        INDArray input = Nd4j.create(new int[]{currMinibatchSize, validCharacters.length, maxLevelLenght}, 'f');
+        INDArray labels = Nd4j.create(new int[]{currMinibatchSize, validCharacters.length, maxLevelLenght}, 'f');
 
         //Arreglos que serán utilizados para el Masking, inicializados en cero
         INDArray featuresMask = Nd4j.zeros(currMinibatchSize, maxLevelLenght);

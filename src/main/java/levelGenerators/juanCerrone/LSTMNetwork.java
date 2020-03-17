@@ -33,7 +33,7 @@ public class LSTMNetwork {
     //Seed
     private static final long seed = 12345;
     //Cantidad de epochs
-    protected static final int numEpochs = 100 ;
+    protected static final int numEpochs = 4000 ;
     //Referencia a la red
     private MultiLayerNetwork net;
     //Iterador que permite recorrer los niveles
@@ -41,7 +41,7 @@ public class LSTMNetwork {
     //Generador de numero aleatorios
     private Random rng;
     //Tamaño del minibatch (Ejemplos que entrenan en paralelo)
-    protected int minibatchSize = 1;
+    protected int minibatchSize = 16;
     //Learning rate
     protected double learningRate = 0.01;
     //Altura de los niveles

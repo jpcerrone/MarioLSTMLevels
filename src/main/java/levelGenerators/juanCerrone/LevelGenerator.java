@@ -41,8 +41,9 @@ public class LevelGenerator implements MarioLevelGenerator {
     //Genera un nivel bloque por bloque y se guarda en un archivo. Se le envía un seed que describe el comienzo del nivel
     @Override
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
+
         model.clearMap();
-        String level =  network.getGeneratedLevel(model,Seed.TREETOPS);
+        String level =  network.getGeneratedLevel(model,Seed.OVERWORLD);
         System.out.println(level);
         saveFile(level);
         return level;
