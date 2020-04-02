@@ -311,4 +311,15 @@ public class MarioLevelModel {
 	MarioGame game = new MarioGame();
 	return game.runGame(agent, this.getMap(), timer);
     }
+
+    //Returns a copy of the model without everything that comes after the flag
+    public MarioLevelModel copyUntilFlag(int finalcolumn){
+        MarioLevelModel newModel = new MarioLevelModel(finalcolumn,this.getHeight());
+        for(int x = 0; x < finalcolumn;x++){
+            for (int y = 0; y < this.getHeight(); y++) {
+                newModel.setBlock(x,y,map[x][y]);
+            }
+        }
+        return newModel;
+    }
 }

@@ -126,6 +126,9 @@ public class LSTMNetwork {
                 char sample = sampleFromProbDistribution(output);
                 nextInput.putScalar(new int[]{0, characterIterator.convertCharacterToIndex(sample)}, 1.0f);
                 model.setBlock(i,j,sample);
+                if(sample == MarioLevelModel.MARIO_EXIT){
+                    return model.copyUntilFlag(i+1).getMap();
+                }
                 output = net.rnnTimeStep(nextInput);
             }
 
