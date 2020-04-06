@@ -85,6 +85,7 @@ levelGenerators\sampler\LevelGenerator.class
 agents\robinBaumgarten\Helper.class
 agents\robinBaumgarten\SearchNode.class
 engine\effects\DustEffect.class
+levelGenerators\juanCerrone\Seed.class
 engine\helper\EventType.class
 engine\core\MarioRender.class
 agents\andySloane\FlowerEnemyState.class

@@ -40,7 +40,11 @@ public class Ventana extends JFrame implements KeyListener {
     private static final int FLAG_START = 4;
     //Posicion y donde termina la bandera
     private static final int FLAG_END = 14;
+    //Color del cielo
+    private static final Color skyColor = new Color(103,175,252);
+    //private static final Color skyColor = new Color(0,0,0);
 
+    private static final int wingOffset = 8;
     //Inicializa la ventana y carga el primer nivel
     Ventana() throws IOException {
         super("Level Visualizer");
@@ -66,164 +70,213 @@ public class Ventana extends JFrame implements KeyListener {
         int width = lines.get(0).length();
         BufferedImage img = new BufferedImage(width*BLOCKSIZE,BLOCKSIZE*BLOCKSIZE,BufferedImage.TYPE_INT_RGB);
         Graphics imgGraphics = img.getGraphics();
+        //Draw the sky
+        imgGraphics.setColor(skyColor);
+        imgGraphics.fillRect(0,0,width*BLOCKSIZE,BLOCKSIZE*BLOCKSIZE);
         List<Integer> flags = new ArrayList<>(); //List of all flag coordinates, given by the y component
+        boolean rightPipe = false;
         //Dibuja cada bloque dependiendo de su tipo
         for(int j = 0 ; j < lines.size() ;j++){
             String line = lines.get(j);
             for(int i = 0; i < width;i++){
-                Image sprite;
-                boolean isEnemy = false;
                 switch (line.charAt(i)) {
-                    case MarioLevelModel.GROUND: {
-                        sprite = Assets.level[1][0];
+                    //Blocks:
+                    case MarioLevelModel.MARIO_START:{
+                        imgGraphics.drawImage(Assets.smallMario[1][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
-                    case MarioLevelModel.EMPTY: {
-                        sprite = Assets.level[6][4];
+                    case MarioLevelModel.GROUND: {
+                        imgGraphics.drawImage(Assets.level[1][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.NORMAL_BRICK: {
-                        sprite = Assets.level[6][0];
+                        imgGraphics.drawImage(Assets.level[6][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.COIN: {
-                        sprite = Assets.level[7][1];
-                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.level[7][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
-                    case MarioLevelModel.PIPE:
-                    case MarioLevelModel.PIPE_FLOWER: {
-                        sprite = Assets.level[4][2];
+                    case MarioLevelModel.PIPE_FLOWER:{
+                        if(line.charAt(i-1) != MarioLevelModel.PIPE_FLOWER && line.charAt(i-1) != MarioLevelModel.PIPE) {
+                            if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
+                                //draw flower
+                                imgGraphics.drawImage(Assets.enemies[1][6], (i % width) * BLOCKSIZE + BLOCKSIZE/2, j * BLOCKSIZE - (int)(1.7* BLOCKSIZE), null);
+                                imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                            }
+                            else {
+                                imgGraphics.drawImage(Assets.level[4][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                            }
+                            rightPipe = true;
+                        }
+                        else{
+                            if(rightPipe){
+                                if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER) {
+                                    imgGraphics.drawImage(Assets.level[3][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                else{
+                                    imgGraphics.drawImage(Assets.level[5][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                rightPipe = false;
+                            }
+                            else{
+                                if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
+                                    imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                else {
+                                    imgGraphics.drawImage(Assets.level[4][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                rightPipe = true;
+                            }
+                        }
                         break;
                     }
-                    case MarioLevelModel.GOOMBA: {
-                        sprite = Assets.enemies[0][2];
-                        isEnemy = true;
+                    case MarioLevelModel.PIPE:{
+                        if(line.charAt(i-1) != MarioLevelModel.PIPE_FLOWER && line.charAt(i-1) != MarioLevelModel.PIPE) {
+                            if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
+                                imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                            }
+                            else {
+                                imgGraphics.drawImage(Assets.level[4][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                            }
+                            rightPipe = true;
+                        }
+                        else{
+                            if(rightPipe){
+                                if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER) {
+                                    imgGraphics.drawImage(Assets.level[3][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                else{
+                                    imgGraphics.drawImage(Assets.level[5][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                rightPipe = false;
+                            }
+                            else{
+                                if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
+                                    imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                else {
+                                    imgGraphics.drawImage(Assets.level[4][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                rightPipe = true;
+                            }
+                        }
                         break;
                     }
                     case MarioLevelModel.PYRAMID_BLOCK: {
-                        sprite = Assets.level[2][0];
-                        break;
-                    }
-                    case MarioLevelModel.GREEN_KOOPA: {
-                        sprite = Assets.enemies[0][1];
-                        isEnemy = true;
-                        break;
-                    }
-                    case MarioLevelModel.RED_KOOPA: {
-                        sprite = Assets.enemies[0][0];
-                        isEnemy = true;
+                        imgGraphics.drawImage(Assets.level[2][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.SPECIAL_BRICK: {
-                        sprite = Assets.items[0][0];
                         imgGraphics.drawImage(Assets.level[6][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.items[0][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.LIFE_BRICK: {
-                        sprite = Assets.items[1][1];
                         imgGraphics.drawImage(Assets.level[6][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.items[1][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.COIN_BRICK: {
-                        sprite = Assets.level[7][1];
                         imgGraphics.drawImage(Assets.level[6][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.level[7][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.COIN_QUESTION_BLOCK: {
-                        sprite = Assets.level[3][1];
-                        break;
-                    }
-                    case MarioLevelModel.SPECIAL_QUESTION_BLOCK: {
-                        sprite = Assets.items[0][0];
                         imgGraphics.drawImage(Assets.level[3][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
-                    case MarioLevelModel.SPIKY: {
-                        sprite = Assets.enemies[0][3];
-                        isEnemy = true;
+                    case MarioLevelModel.SPECIAL_QUESTION_BLOCK: {
+                        imgGraphics.drawImage(Assets.level[3][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.items[0][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.BULLET_BILL_TOP: {
-                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
-                        sprite = Assets.level[3][0];
+                        imgGraphics.drawImage(Assets.level[4][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.BULLET_BILL_BOTTOM: {
-                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
-                        sprite = Assets.level[4][0];
+                        imgGraphics.drawImage(Assets.level[3][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.USED_BLOCK: {
-                        sprite = Assets.level[6][1];
+                        imgGraphics.drawImage(Assets.level[6][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.MARIO_EXIT: {
                         flags.add(i);
-                        sprite = Assets.level[6][4];
                         break;
                     }
                     case MarioLevelModel.COIN_HIDDEN_BLOCK:{
-                        sprite = Assets.level[1][2];
                         imgGraphics.drawImage(Assets.level[6][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.level[1][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.LIFE_HIDDEN_BLOCK:{
-                        sprite = Assets.level[1][1];
                         imgGraphics.drawImage(Assets.level[6][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.level[1][1], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
                     }
+                    case MarioLevelModel.PLATFORM_BACKGROUND:{
+                        imgGraphics.drawImage(Assets.level[7][5], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        break;
+                    }
+                    case MarioLevelModel.PLATFORM:{
+                        imgGraphics.drawImage(Assets.level[6][5], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        break;
+                    }
+                    case MarioLevelModel.EMPTY:{
+                        //do nothing
+                        break;
+                    }
+                    //Enemies:
+                    //Some enemies images are flipped because their original images don´t match the game orientation
                     case MarioLevelModel.GOOMBA_WINGED: {
-                        sprite = Assets.enemies[0][2];
-                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
-                        imgGraphics.drawImage(sprite, (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.enemies[0][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         imgGraphics.drawImage(Assets.enemies[0][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
                         break;
                     }
                     case MarioLevelModel.GREEN_KOOPA_WINGED: {
-                        sprite = Assets.enemies[0][1];
-                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
-                        imgGraphics.drawImage(sprite, (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
-                        imgGraphics.drawImage(Assets.enemies[0][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.enemies[0][1], (i % width) * BLOCKSIZE + BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE,-BLOCKSIZE, BLOCKSIZE*2, null);
+                        imgGraphics.drawImage(Assets.enemies[1][4], (i % width) * BLOCKSIZE + BLOCKSIZE+wingOffset, j * BLOCKSIZE - BLOCKSIZE -wingOffset,-BLOCKSIZE, BLOCKSIZE*2, null);
                         break;
                     }
                     case MarioLevelModel.RED_KOOPA_WINGED: {
-                        sprite = Assets.enemies[0][0];
-                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
-                        imgGraphics.drawImage(sprite, (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
-                        imgGraphics.drawImage(Assets.enemies[0][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.enemies[0][0], (i % width) * BLOCKSIZE + BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE,-BLOCKSIZE, BLOCKSIZE*2, null);
+                        imgGraphics.drawImage(Assets.enemies[1][4], (i % width) * BLOCKSIZE + BLOCKSIZE+wingOffset, j * BLOCKSIZE - BLOCKSIZE -wingOffset,-BLOCKSIZE, BLOCKSIZE*2, null);
                         break;
                     }
                     case MarioLevelModel.SPIKY_WINGED: {
-                        sprite = Assets.enemies[0][3];
-                        imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
-                        imgGraphics.drawImage(sprite, (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
+                        imgGraphics.drawImage(Assets.enemies[0][3], (i % width) * BLOCKSIZE + BLOCKSIZE, j * BLOCKSIZE,-BLOCKSIZE, BLOCKSIZE*2, null);
                         imgGraphics.drawImage(Assets.enemies[0][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
                         break;
                     }
-                    case MarioLevelModel.PLATFORM_BACKGROUND:{
-                        sprite = Assets.level[7][5];
+                    case MarioLevelModel.SPIKY: {
+                        imgGraphics.drawImage(Assets.enemies[0][3], (i % width) * BLOCKSIZE + BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE,-BLOCKSIZE, BLOCKSIZE*2, null);
                         break;
                     }
-                    case MarioLevelModel.PLATFORM:{
-                        sprite = Assets.level[6][5];
+                    case MarioLevelModel.GOOMBA: {
+                        imgGraphics.drawImage(Assets.enemies[0][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
                         break;
                     }
-                    default:
-                        sprite = Assets.level[6][2];
-                }
-                if (isEnemy) {
-                    imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
-                    imgGraphics.drawImage(sprite, (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
-                } else {
-                    imgGraphics.drawImage(sprite, (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                    case MarioLevelModel.GREEN_KOOPA: {
+                        imgGraphics.drawImage(Assets.enemies[0][1], (i % width) * BLOCKSIZE + BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE,-BLOCKSIZE, BLOCKSIZE*2, null);
+                        break;
+                    }
+                    case MarioLevelModel.RED_KOOPA: {
+                        imgGraphics.drawImage(Assets.enemies[0][0], (i % width) * BLOCKSIZE + BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE,-BLOCKSIZE, BLOCKSIZE*2, null);
+                        break;
+                    }
+                    default:{
+                        imgGraphics.drawImage(Assets.level[0][3], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                        break;
+                    }
                 }
             }
         }
         //Dibujar banderas
         for(int i : flags){
             for(int f = FLAG_START; f < FLAG_END;f++){
-                imgGraphics.drawImage(Assets.level[6][4], (i % width) * BLOCKSIZE, (BLOCKSIZE-f) * BLOCKSIZE, null);
                 imgGraphics.drawImage(Assets.level[0][5], (i % width) * BLOCKSIZE, (BLOCKSIZE-f) * BLOCKSIZE, null);
             }
             imgGraphics.drawImage(Assets.level[7][4], (i % width) * BLOCKSIZE, (BLOCKSIZE - FLAG_END) * BLOCKSIZE, null);
