@@ -4,11 +4,15 @@ import engine.core.MarioWorld;
 import engine.graphics.MarioImage;
 import engine.helper.Assets;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.Buffer;
@@ -18,7 +22,7 @@ import java.util.List;
 
 import static java.awt.event.KeyEvent.*;
 
-public class Ventana extends JFrame implements KeyListener {
+public class Ventana extends JFrame implements KeyListener, ActionListener {
     //Dimensiones de la pantalla
     private Dimension screenSize;
     //Imágen sobre la cual se dibujan los niveles
@@ -43,11 +47,19 @@ public class Ventana extends JFrame implements KeyListener {
     //Color del cielo
     private static final Color skyColor = new Color(103,175,252);
     //private static final Color skyColor = new Color(0,0,0);
-
+    private JMenuBar menuBar;
+    private JMenu menu;
     private static final int wingOffset = 8;
     //Inicializa la ventana y carga el primer nivel
     Ventana() throws IOException {
         super("Level Visualizer");
+        menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+        menu = new JMenu("File");
+        menuBar.add(menu);
+        JMenuItem exportPng = new JMenuItem("Export png");
+        menu.add(exportPng);
+        exportPng.addActionListener(this);
         xShift = 0;
         JPanel panel = new Panel();
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -327,6 +339,18 @@ public class Ventana extends JFrame implements KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
+
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        //Save image
+        File imgFile = new File("levelImage.png");
+        try {
+            ImageIO.write((RenderedImage) img,"png",imgFile);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
     }
 
