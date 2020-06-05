@@ -52,12 +52,12 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
     private static final int wingOffset = 8;
     //Inicializa la ventana y carga el primer nivel
     Ventana() throws IOException {
-        super("Level Visualizer");
+        super("Visualizador");
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
-        menu = new JMenu("File");
+        menu = new JMenu("Exportar");
         menuBar.add(menu);
-        JMenuItem exportPng = new JMenuItem("Export png");
+        JMenuItem exportPng = new JMenuItem("Exportar png");
         menu.add(exportPng);
         exportPng.addActionListener(this);
         xShift = 0;

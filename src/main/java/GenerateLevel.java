@@ -24,8 +24,9 @@ public class GenerateLevel {
     }
     
     public static void main(String[] args) {
-		System.out.println("Train net ? (y/n)");
+		System.out.println("Entrenar red ? (y/n)");
 		Scanner keyboard = new Scanner(System.in);
+
 		MarioLevelGenerator generator;
 		if(keyboard.nextLine() .equals("y")) {
 			generator = new levelGenerators.juanCerrone.LevelGenerator(true);
@@ -33,9 +34,16 @@ public class GenerateLevel {
 		else{
 			generator = new levelGenerators.juanCerrone.LevelGenerator(false);
 		}
-		String level = generator.getGeneratedLevel(new MarioLevelModel(400, 16), new MarioTimer(5 * 60 * 60 * 1000));
+		System.out.println("Cantidad de niveles: ");
+		//keyboard = new Scanner(System.in);
+		int numberOfLevels = keyboard.nextInt();
+		for(int i=0; i < numberOfLevels;i++) {
+			System.out.println("Generando nivel " + (i+1) + "...") ;
+			String level = generator.getGeneratedLevel(new MarioLevelModel(400, 16), new MarioTimer(5 * 60 * 60 * 1000));
+			//System.out.println(level);
+		}
 		MarioGame game = new MarioGame();
 		// printResults(game.playGame(level, 200, 0));
-		printResults(game.runGame(new agents.robinBaumgarten.Agent(), level, 20, 0, true));
+		//printResults(game.runGame(new agents.robinBaumgarten.Agent(), level, 20, 0, true));
     }
 }

@@ -8,7 +8,6 @@ import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
-import org.deeplearning4j.optimize.listeners.ParamAndGradientIterationListener;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -84,7 +83,7 @@ public class LSTMNetwork {
         //Para mostrar el score del gradient descent
         //net.setListeners(new ScoreIterationListener(200));
         //Logue los scores en un archivo
-        net.setListeners(new ParamAndGradientIterationListener(1, true, false, false, false, false, true, false, new File(LOGSAVEPATH), ","));
+        //net.setListeners(new ParamAndGradientIterationListener(1, true, false, false, false, false, true, false, new File(LOGSAVEPATH), ","));
 
         //Entrena la red durante la cantidad de epochs especificada y se guarda el modelo de la misma en un archivo
         for( int j=0; j<numEpochs; j++ ){

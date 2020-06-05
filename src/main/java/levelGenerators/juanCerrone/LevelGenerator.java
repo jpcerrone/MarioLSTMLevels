@@ -44,7 +44,6 @@ public class LevelGenerator implements MarioLevelGenerator {
 
         model.clearMap();
         String level =  network.getGeneratedLevel(model,Seed.OVERWORLD);
-        System.out.println(level);
         saveFile(level);
         return level;
 
