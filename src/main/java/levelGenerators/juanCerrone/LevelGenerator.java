@@ -56,15 +56,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         File generatedLevelsFolderFile = new File(generatedLevelsFolder);
         try {
             String filename = generatedLevelsFolder
-                    + "(" + generatedLevelsFolderFile.listFiles().length + ") " +
-                    + network.getScore() + " score "
-                    + LSTMNetwork.numEpochs + "epochs "
-                    + network.minibatchSize + "batches "
-                    + LSTMNetwork.lstmLayerSize + "blocks "
-                    + LSTMNetwork.tbpttLength + "tbptt "
-                    + trainingTime/1000 /60 + "min "
-                    + trainingLevelsFolderFile.listFiles().length + "levels "
-                    + network.learningRate + " lr"
+                    + generatedLevelsFolderFile.listFiles().length
                     +  ".txt";
             FileWriter f = new FileWriter(filename);
             f.write(level);
