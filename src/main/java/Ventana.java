@@ -50,31 +50,43 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
     private JMenuBar menuBar;
     private JMenu menu;
     private static final int wingOffset = 8;
-    //Inicializa la ventana y carga el primer nivel
-    Ventana() throws IOException {
-        super("Visualizador");
+    private int arrowSize;
+
+    private void initGraphics(){
+        xShift = 0;
+        currentLevel = 0;
+        Assets.init(getGraphicsConfiguration());
+        arrowSize = Assets.arrows[0][0].getWidth(null);
+    }
+
+    private void initMenu(){
         menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
         menu = new JMenu("Exportar");
         menuBar.add(menu);
         JMenuItem exportPng = new JMenuItem("Exportar png");
         menu.add(exportPng);
         exportPng.addActionListener(this);
-        xShift = 0;
+        setJMenuBar(menuBar);
+    }
+
+    //Inicializa la ventana y carga el primer nivel
+    Ventana() throws IOException {
+        super("Visualizador");
+        initMenu();
         JPanel panel = new Panel();
         screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         this.setSize(screenSize.width,screenSize.height);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.add(panel);
-        Assets.init(getGraphicsConfiguration());
         File levelFolder = new File(levelsFolderPath);
         levels = levelFolder.listFiles();
-        currentLevel = 0;
+        initGraphics();
         loadLevel();
         addKeyListener(this);
         setFocusTraversalKeysEnabled(false);
     }
+
     //Carga un nuevo nivel
     private void loadLevel() throws IOException {
         File level = levels[currentLevel];
@@ -356,8 +368,21 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
 
     private class Panel extends JPanel{
         public void paintComponent(Graphics g){
-            g.drawImage(img, 0 - xShift, screenSize.height/2 -BLOCKSIZE*BLOCKSIZE, levelWidth, levelHeight, null);
-            g.drawString(levels[currentLevel].getName(),0,screenSize.height/2 +30);
+            //nivel
+            int startingX;
+            if(img.getWidth(null) < screenSize.width)
+                startingX = (screenSize.width-img.getWidth(null))/2;
+            else
+                startingX = -xShift;
+            g.drawImage(img, startingX, screenSize.height/2 -BLOCKSIZE*BLOCKSIZE, levelWidth, levelHeight, null);
+            //flechas/texto
+            g.drawString(levels[currentLevel].getName(),screenSize.width/2,screenSize.height/2 +arrowSize/2);
+            g.drawImage(Assets.arrows[2][0],screenSize.width -2*arrowSize,screenSize.height- 4*arrowSize,null);
+            g.drawImage(Assets.arrows[0][0],screenSize.width -3*arrowSize,screenSize.height- 4*arrowSize,null);
+            g.drawImage(Assets.arrows[1][0],arrowSize,screenSize.height- 4*arrowSize,null);
+            g.drawImage(Assets.arrows[3][0],2*arrowSize,screenSize.height- 4*arrowSize,null);
+            g.drawImage(Assets.text[0][0],arrowSize,screenSize.height- 3*arrowSize,null);
+            g.drawImage(Assets.text[0][1],screenSize.width - arrowSize*3,screenSize.height- 3*arrowSize,null);
         }
     }
 

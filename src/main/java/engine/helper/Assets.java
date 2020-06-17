@@ -25,6 +25,8 @@ public class Assets
     public static Image[][] particles;
     public static Image[][] font;
     public static Image[][] map;
+    public static Image[][] arrows;
+    public static Image[][] text;
     final static String curDir = System.getProperty("user.dir");
     final static String img = curDir + "/img/";
 
@@ -40,6 +42,9 @@ public class Assets
             level = cutImage(gc, "mapsheet.png", 16, 16);
             particles = cutImage(gc, "particlesheet.png", 16, 16);
             font = cutImage(gc, "font.gif", 8, 8);
+            arrows = cutImage(gc, "arrows.png", 54, 54);
+            text = cutImage(gc, "text.png", 108, 54);
+
         }
         catch (Exception e)
         {

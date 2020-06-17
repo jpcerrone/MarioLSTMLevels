@@ -129,6 +129,7 @@ public class LSTMNetwork {
                     return model.copyUntilFlag(i+1).getMap();
                 }
                 output = net.rnnTimeStep(nextInput);
+                System.out.println(output);
             }
 
         }
