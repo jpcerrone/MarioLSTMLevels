@@ -7,8 +7,7 @@ import engine.core.MarioTimer;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
-
+import java.util.Objects;
 
 public class LevelGenerator implements MarioLevelGenerator {
     //Red LSTM
@@ -17,17 +16,15 @@ public class LevelGenerator implements MarioLevelGenerator {
     private static final String trainingLevelsFolder = "levels/original/";
     //Carpeta donde se guardan los niveles generados
     private static final String generatedLevelsFolder = "levels/jC/";
-    //Variable para guardar el tiempo de entrenamiento
-    private long trainingTime;
 
     //Constructor que genera un nivel, si train es true entrena la red antes de hacerlo, si no, se genera el nivel en base a última red generada
     public LevelGenerator(boolean train) {
         network = new LSTMNetwork(trainingLevelsFolder);
         if (train) {
         try {
-            trainingTime = System.currentTimeMillis();
+            long trainingTime = System.currentTimeMillis();
             network.initialize();
-            trainingTime = System.currentTimeMillis()-trainingTime;
+            trainingTime = System.currentTimeMillis()- trainingTime;
             System.out.println("Initialized!");
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,7 +52,7 @@ public class LevelGenerator implements MarioLevelGenerator {
         File generatedLevelsFolderFile = new File(generatedLevelsFolder);
         try {
             String filename = generatedLevelsFolder
-                    + generatedLevelsFolderFile.listFiles().length
+                    + Objects.requireNonNull(generatedLevelsFolderFile.listFiles()).length
                     +  ".txt";
             FileWriter f = new FileWriter(filename);
             f.write(level);

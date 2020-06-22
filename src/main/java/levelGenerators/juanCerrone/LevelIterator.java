@@ -2,14 +2,10 @@ package levelGenerators.juanCerrone;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
-import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
-import org.opencv.core.Mat;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -77,11 +73,6 @@ public class LevelIterator implements Iterator{
         for(char[] level : charLevels){
             maxLevelLenght = Math.max(level.length,maxLevelLenght);
         }
-
-        // dimension 0 = number of examples in minibatch
-        // dimension 1 = size of each vector (i.e., number of characters)
-        // dimension 2 = length of each time series/example
-        //Why 'f' order here? See http://deeplearning4j.org/usingrnns.html#data section "Alternative: Implementing a custom DataSetIterator"
 
         INDArray input = Nd4j.create(new int[]{currMinibatchSize, validCharacters.length, maxLevelLenght}, 'f');
         INDArray labels = Nd4j.create(new int[]{currMinibatchSize, validCharacters.length, maxLevelLenght}, 'f');

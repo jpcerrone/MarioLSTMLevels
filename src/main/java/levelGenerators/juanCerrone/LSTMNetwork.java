@@ -27,9 +27,9 @@ public class LSTMNetwork {
     protected File levelsFolder;
     //Cada cuantos bloques se actualizan los parametros
     protected static final int tbpttLength = 0;
-    //Cantidad de cedas lstm por capa
+    //Dimensionalidad del cell state
     protected static final int lstmLayerSize = 128;
-    //Seed
+    //Semilla
     private static final long seed = 12345;
     //Cantidad de epochs
     protected static final int numEpochs = 4000 ;
@@ -41,7 +41,7 @@ public class LSTMNetwork {
     private Random rng;
     //Tamaño del minibatch (Ejemplos que entrenan en paralelo)
     protected int minibatchSize = 16;
-    //Learning rate
+    //Tasa de aprendizaje
     protected double learningRate = 0.01;
     //Altura de los niveles
     private static final int LEVEL_HEIGHT = 16;
@@ -62,7 +62,7 @@ public class LSTMNetwork {
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
                 .l2(0.0001) //swap for dropout, puede funcionar para que deje de explotar
-                .weightInit(WeightInit.XAVIER) //For tanh
+                .weightInit(WeightInit.XAVIER) //Para tanh
                 .updater(new Adam(learningRate))
                 .list()
                 .layer(new LSTM.Builder().nIn(characterIterator.inputColumns()).nOut(lstmLayerSize)
@@ -94,7 +94,7 @@ public class LSTMNetwork {
             }
             characterIterator.reset();
         }
-        System.out.println("\n\nExample complete");
+        System.out.println("\n\nEntrenamiento Completado");
         net.save(new File(MODELSAVEPATH), true);
     }
 
@@ -105,7 +105,7 @@ public class LSTMNetwork {
         }
 
         //Se crea la primer entrada en base al seed de nivel pasado
-        INDArray initializationInput = Nd4j.zeros(1,characterIterator.inputColumns(), initSeed.length()); //El 1 es como el minibatch, aca seria un solo ejemplo todo ver si cambia con el minibatch
+        INDArray initializationInput = Nd4j.zeros(1,characterIterator.inputColumns(), initSeed.length()); //El 1 es como el minibatch, aca seria un solo ejemplo
         char[] init = initSeed.toCharArray();
         for( int i=0; i<init.length; i++ ){
             int idx = characterIterator.convertCharacterToIndex(init[i]);
@@ -118,7 +118,7 @@ public class LSTMNetwork {
         //Loop de generacion del nivel con la red de a un caracter por vez
         net.rnnClearPreviousState();
         INDArray output = net.rnnTimeStep(initializationInput);
-        output = output.tensorAlongDimension((int)output.size(2)-1,1,0);	//Gets the last time step output
+        output = output.tensorAlongDimension((int)output.size(2)-1,1,0); //Obtiene la ultima salida
         for (int i = init.length/16; i < model.getWidth(); i++) {
             for (int j = model.getHeight() - 1; j >= 0 ; j--) {
                 INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());

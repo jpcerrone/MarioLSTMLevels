@@ -34,22 +34,23 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
     private int xShift;
     //Carpeta que contiene los niveles a dibujar
     private static final String levelsFolderPath = "levels/jC";
+    //Imágen de salida
+    private static final String outuptImageFileName = "levelImage.png";
     //Nivel actual
     private int currentLevel;
     //Arreglo que contiene todos los nvieles
     private File[] levels;
     //Tamaño en píxeles de cada bloque
     private static final int BLOCKSIZE = 16;
-    //Posicion y donde comienza la bandera
+    //Posicion en y donde comienza la bandera
     private static final int FLAG_START = 4;
-    //Posicion y donde termina la bandera
+    //Posicion en y donde termina la bandera
     private static final int FLAG_END = 14;
     //Color del cielo
     private static final Color skyColor = new Color(103,175,252);
-    //private static final Color skyColor = new Color(0,0,0);
-    private JMenuBar menuBar;
-    private JMenu menu;
+    //Ubicación alas con respecto al sprite del enemigo
     private static final int wingOffset = 8;
+    //Tamaño de las flechas
     private int arrowSize;
 
     private void initGraphics(){
@@ -60,8 +61,8 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
     }
 
     private void initMenu(){
-        menuBar = new JMenuBar();
-        menu = new JMenu("Exportar");
+        JMenuBar menuBar = new JMenuBar();
+        JMenu menu = new JMenu("Exportar");
         menuBar.add(menu);
         JMenuItem exportPng = new JMenuItem("Exportar png");
         menu.add(exportPng);
@@ -94,17 +95,17 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
         int width = lines.get(0).length();
         BufferedImage img = new BufferedImage(width*BLOCKSIZE,BLOCKSIZE*BLOCKSIZE,BufferedImage.TYPE_INT_RGB);
         Graphics imgGraphics = img.getGraphics();
-        //Draw the sky
+        //Dibujar el cielo
         imgGraphics.setColor(skyColor);
         imgGraphics.fillRect(0,0,width*BLOCKSIZE,BLOCKSIZE*BLOCKSIZE);
-        List<Integer> flags = new ArrayList<>(); //List of all flag coordinates, given by the y component
+        List<Integer> flags = new ArrayList<>(); //Lista de las cordenadas de las banderas
         boolean rightPipe = false;
         //Dibuja cada bloque dependiendo de su tipo
         for(int j = 0 ; j < lines.size() ;j++){
             String line = lines.get(j);
             for(int i = 0; i < width;i++){
                 switch (line.charAt(i)) {
-                    //Blocks:
+                    //Bloques:
                     case MarioLevelModel.MARIO_START:{
                         imgGraphics.drawImage(Assets.smallMario[1][0], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         break;
@@ -124,7 +125,7 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
                     case MarioLevelModel.PIPE_FLOWER:{
                         if(line.charAt(i-1) != MarioLevelModel.PIPE_FLOWER && line.charAt(i-1) != MarioLevelModel.PIPE) {
                             if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
-                                //draw flower
+                                //Flor
                                 imgGraphics.drawImage(Assets.enemies[1][6], (i % width) * BLOCKSIZE + BLOCKSIZE/2, j * BLOCKSIZE - (int)(1.7* BLOCKSIZE), null);
                                 imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                             }
@@ -253,8 +254,8 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
                         //do nothing
                         break;
                     }
-                    //Enemies:
-                    //Some enemies images are flipped because their original images don´t match the game orientation
+                    //Enemigos:
+                    //Algunas de las imágenes de los enemigos son dadas vuelta ya que las originales no estan en la dirección deseada
                     case MarioLevelModel.GOOMBA_WINGED: {
                         imgGraphics.drawImage(Assets.enemies[0][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                         imgGraphics.drawImage(Assets.enemies[0][4], (i % width) * BLOCKSIZE, j * BLOCKSIZE - BLOCKSIZE, null);
@@ -356,8 +357,8 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        //Save image
-        File imgFile = new File("levelImage.png");
+        //Guardar imágen
+        File imgFile = new File("outuptImageFileName");
         try {
             ImageIO.write((RenderedImage) img,"png",imgFile);
         } catch (IOException ex) {
