@@ -1,6 +1,7 @@
 package levelGenerators.juanCerrone;
 
 import engine.core.MarioLevelModel;
+import org.deeplearning4j.core.storage.StatsStorage;
 import org.deeplearning4j.nn.conf.BackpropType;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -8,6 +9,9 @@ import org.deeplearning4j.nn.conf.layers.LSTM;
 import org.deeplearning4j.nn.conf.layers.RnnOutputLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.deeplearning4j.ui.api.UIServer;
+import org.deeplearning4j.ui.model.stats.StatsListener;
+import org.deeplearning4j.ui.model.storage.FileStatsStorage;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -22,7 +26,7 @@ public class LSTMNetwork {
     //Directorio que contiene el modelo de la última red generada
     private static final String MODELSAVEPATH = "model/model.zip";
     //Direcotrio que contiene el log del score de la última red generada
-    private static final String LOGSAVEPATH = "log.csv";
+    private static final String LOGSAVEPATH = "log";
     //Carpeta que contiene los niveles usados para entrenar
     protected File levelsFolder;
     //Cada cuantos bloques se actualizan los parametros
@@ -32,7 +36,7 @@ public class LSTMNetwork {
     //Semilla
     private static final long seed = 12345;
     //Cantidad de epochs
-    protected static final int numEpochs = 4000 ;
+    protected static final int numEpochs = 1000 ;
     //Referencia a la red
     private MultiLayerNetwork net;
     //Iterador que permite recorrer los niveles
@@ -40,7 +44,7 @@ public class LSTMNetwork {
     //Generador de numero aleatorios
     private Random rng;
     //Tamaño del minibatch (Ejemplos que entrenan en paralelo)
-    protected int minibatchSize = 16;
+    protected int minibatchSize = 20;
     //Tasa de aprendizaje
     protected double learningRate = 0.01;
     //Altura de los niveles
@@ -69,6 +73,8 @@ public class LSTMNetwork {
                         .activation(Activation.TANH).build())
                 .layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
                         .activation(Activation.TANH).build())
+                .layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
+                        .activation(Activation.TANH).build())
                 .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX)
                         .nIn(lstmLayerSize).nOut(nOut).build())
                 .build();
@@ -84,7 +90,16 @@ public class LSTMNetwork {
         //net.setListeners(new ScoreIterationListener(200));
         //Logue los scores en un archivo
         //net.setListeners(new ParamAndGradientIterationListener(1, true, false, false, false, false, true, false, new File(LOGSAVEPATH), ","));
+        UIServer uiServer = UIServer.getInstance();
 
+        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
+        StatsStorage statsStorage = new FileStatsStorage(new File(LOGSAVEPATH));         //Alternative: new FileStatsStorage(File), for saving and loading later
+
+        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+        uiServer.attach(statsStorage);
+
+        //Then add the StatsListener to collect this information from the network, as it trains
+        net.setListeners(new StatsListener(statsStorage));
         //Entrena la red durante la cantidad de epochs especificada y se guarda el modelo de la misma en un archivo
         for( int j=0; j<numEpochs; j++ ){
             System.out.println("Epoch: " + j );

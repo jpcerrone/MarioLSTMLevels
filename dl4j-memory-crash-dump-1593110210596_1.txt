@@ -1,0 +1,115 @@
+Deeplearning4j OOM Exception Encountered for MultiLayerNetwork
+Timestamp:                              2020-06-25 15:36:50.596
+Thread ID                               1
+Thread Name                             main
+
+
+Stack Trace:
+java.lang.OutOfMemoryError: Failed to allocate memory within limits: totalBytes (11380M + 9325M) > maxBytes (16084M)
+	at org.bytedeco.javacpp.Pointer.deallocator(Pointer.java:678)
+	at org.deeplearning4j.cuda.BaseCudnnHelper$DataCache.<init>(BaseCudnnHelper.java:125)
+	at org.deeplearning4j.cuda.recurrent.CudnnLSTMHelper.activate(CudnnLSTMHelper.java:517)
+	at org.deeplearning4j.nn.layers.recurrent.LSTMHelpers.activateHelper(LSTMHelpers.java:205)
+	at org.deeplearning4j.nn.layers.recurrent.LSTM.activateHelper(LSTM.java:177)
+	at org.deeplearning4j.nn.layers.recurrent.LSTM.activate(LSTM.java:142)
+	at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.ffToLayerActivationsInWs(MultiLayerNetwork.java:1134)
+	at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.computeGradientAndScore(MultiLayerNetwork.java:2746)
+	at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.computeGradientAndScore(MultiLayerNetwork.java:2704)
+	at org.deeplearning4j.optimize.solvers.BaseOptimizer.gradientAndScore(BaseOptimizer.java:170)
+	at org.deeplearning4j.optimize.solvers.StochasticGradientDescent.optimize(StochasticGradientDescent.java:63)
+	at org.deeplearning4j.optimize.Solver.optimize(Solver.java:52)
+	at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.fitHelper(MultiLayerNetwork.java:2305)
+	at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.fit(MultiLayerNetwork.java:2263)
+	at org.deeplearning4j.nn.multilayer.MultiLayerNetwork.fit(MultiLayerNetwork.java:2326)
+	at levelGenerators.juanCerrone.LSTMNetwork.initialize(LSTMNetwork.java:111)
+	at levelGenerators.juanCerrone.LevelGenerator.<init>(LevelGenerator.java:29)
+	at GenerateLevel.main(GenerateLevel.java:31)
+
+
+========== Memory Information ==========
+----- Version Information -----
+Deeplearning4j Version                  1.0.0-beta7
+Deeplearning4j CUDA                     deeplearning4j-cuda-10.2
+
+----- System Information -----
+Operating System                        GNU/Linux Manjaro Linux 19.0.1
+CPU                                     AMD Ryzen 7 3700X 8-Core Processor
+CPU Cores - Physical                    8
+CPU Cores - Logical                     16
+Total System Memory                      62.83 GiB (67459047424)
+Number of GPUs Detected                 1
+  Name                           CC                Total Memory              Used Memory              Free Memory
+  TITAN Xp                       6.1    11.91 GiB (12786401280)    3.52 GiB (3782344704)    8.39 GiB (9004056576)
+
+----- ND4J Environment Information -----
+Data Type                               FLOAT
+blas.vendor                             CUBLAS
+os                                      Linux
+backend                                 CUDA
+
+----- Memory Configuration -----
+JVM Memory: XMX                          15.71 GiB (16865296384)
+JVM Memory: current                      68.00 MiB (71303168)
+JavaCPP Memory: Max Bytes                15.71 GiB (16865296384)
+JavaCPP Memory: Max Physical             31.41 GiB (33730592768)
+JavaCPP Memory: Current Bytes            11.11 GiB (11933439280)
+JavaCPP Memory: Current Physical          3.33 GiB (3574579200)
+Periodic GC Enabled                     false
+
+----- Workspace Information -----
+Workspaces: # for current thread        2
+Current thread workspaces:
+  Name                      State       Size                          # Cycles            
+  WS_LAYER_WORKING_MEM      CLOSED           .00 B                    2                   
+  WS_ALL_LAYERS_ACT         CLOSED      979.12 MiB (1026686976)       1                   
+Workspaces total size                   979.12 MiB (1026686976)
+Helper Workspaces
+  CUDNN_WORKSPACE                         241.83 MiB (253575168)
+
+----- Network Information -----
+Network # Parameters                    5325854
+Parameter Memory                         20.32 MiB (21303416)
+Parameter Gradients Memory              <not allocated>
+Updater                                 <not initialized>
+Params + Gradient + Updater Memory           .00 B
+Iteration Count                         0
+Epoch Count                             0
+Backprop Type                           Standard
+Workspace Mode: Training                ENABLED
+Workspace Mode: Inference               ENABLED
+Number of Layers                        4
+Layer Counts
+  LSTM                                    3
+  RnnOutputLayer                          1
+Layer Parameter Breakdown
+  Idx Name                 Layer Type           Layer # Parameters   Layer Parameter Memory
+  0   layer0               LSTM                 1112064                4.24 MiB (4448256)
+  1   layer1               LSTM                 2099200                8.01 MiB (8396800)
+  2   layer2               LSTM                 2099200                8.01 MiB (8396800)
+  3   layer3               RnnOutputLayer       15390                 60.12 KiB (61560)  
+
+----- Layer Helpers - Memory Use -----
+#   Layer Name           Layer Class               Helper Class                   Total Memory Memory Breakdown
+0   layer0               LSTM                      CudnnLSTMHelper                  1.14 GiB (1228177408) {reserveSpace=1222246400, stateStace=1474560, weightsSpace=4456448}
+1   layer1               LSTM                      CudnnLSTMHelper                  9.42 MiB (9879552) {reserveSpace=0, stateStace=1474560, weightsSpace=8404992}
+2   layer2               LSTM                      CudnnLSTMHelper                     .00 B   {reserveSpace=0, stateStace=0, weightsSpace=0}
+Total Helper Count                      3
+Helper Count w/ Memory                  3
+Total Helper Persistent Memory Use        1.15 GiB (1238056960)
+
+----- Network Activations: Inferred Activation Shapes -----
+Current Minibatch Size                  20
+Input Shape                             [20, 30, 5968]
+Idx Name                 Layer Type           Activations Type                           Activations Shape    # Elements   Memory      
+0   layer0               LSTM                 InputTypeRecurrent(512,timeSeriesLength=5968,format=NCW) [20, 512, 5968]      61112320     233.12 MiB (244449280)
+1   layer1               LSTM                 InputTypeRecurrent(512,timeSeriesLength=5968,format=NCW) [20, 512, 5968]      61112320     233.12 MiB (244449280)
+2   layer2               LSTM                 InputTypeRecurrent(512,timeSeriesLength=5968,format=NCW) [20, 512, 5968]      61112320     233.12 MiB (244449280)
+3   layer3               RnnOutputLayer       InputTypeRecurrent(30,timeSeriesLength=5968,format=NCW) [20, 30, 5968]       3580800       13.66 MiB (14323200)
+Total Activations Memory                713.03 MiB (747671040)
+Total Activations Memory (per ex)        35.65 MiB (37383552)
+Total Activation Gradient Mem.          713.03 MiB (747671040)
+Total Activation Gradient Mem. (per ex)  35.65 MiB (37383552)
+
+----- Network Training Listeners -----
+Number of Listeners                     1
+Listener 0                              org.deeplearning4j.ui.model.stats.StatsListener@17814b1c
