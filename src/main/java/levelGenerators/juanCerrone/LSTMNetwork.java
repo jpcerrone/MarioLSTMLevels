@@ -24,7 +24,7 @@ import java.util.Random;
 
 public class LSTMNetwork {
     //Directorio que contiene el modelo de la última red generada
-    private static final String MODELSAVEPATH = "model/model.zip";
+    private static final String MODELSAVEPATH = "model/model6.zip";
     //Direcotrio que contiene el log del score de la última red generada
     private static final String LOGSAVEPATH = "log";
     //Carpeta que contiene los niveles usados para entrenar
