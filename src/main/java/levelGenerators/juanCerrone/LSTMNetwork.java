@@ -3,6 +3,7 @@ package levelGenerators.juanCerrone;
 import engine.core.MarioLevelModel;
 import org.deeplearning4j.core.storage.StatsStorage;
 import org.deeplearning4j.nn.conf.BackpropType;
+import org.deeplearning4j.nn.conf.GradientNormalization;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.LSTM;
@@ -36,7 +37,7 @@ public class LSTMNetwork {
     //Semilla
     private static final long seed = 12345;
     //Cantidad de epochs
-    protected static final int numEpochs = 1000 ;
+    protected static final int numEpochs = 2000 ;
     //Referencia a la red
     private MultiLayerNetwork net;
     //Iterador que permite recorrer los niveles
@@ -65,13 +66,11 @@ public class LSTMNetwork {
         int nOut = characterIterator.inputColumns();
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
-                .l2(0.0001) //swap for dropout, puede funcionar para que deje de explotar
                 .weightInit(WeightInit.XAVIER) //Para tanh
                 .updater(new Adam(learningRate))
+                .gradientNormalization(GradientNormalization.ClipL2PerLayer)
                 .list()
                 .layer(new LSTM.Builder().nIn(characterIterator.inputColumns()).nOut(lstmLayerSize)
-                        .activation(Activation.TANH).build())
-                .layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
                         .activation(Activation.TANH).build())
                 .layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
                         .activation(Activation.TANH).build())
