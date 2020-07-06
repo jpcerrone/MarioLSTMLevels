@@ -123,20 +123,19 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
                         break;
                     }
                     case MarioLevelModel.PIPE_FLOWER:{
-                        if(line.charAt(i-1) != MarioLevelModel.PIPE_FLOWER && line.charAt(i-1) != MarioLevelModel.PIPE) {
-                            if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
-                                //Flor
-                                imgGraphics.drawImage(Assets.enemies[1][6], (i % width) * BLOCKSIZE + BLOCKSIZE/2, j * BLOCKSIZE - (int)(1.7* BLOCKSIZE), null);
-                                imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                            if (line.charAt(i - 1) != MarioLevelModel.PIPE_FLOWER && line.charAt(i - 1) != MarioLevelModel.PIPE) {
+                                if (j > 0 && lines.get(j - 1).charAt(i) != MarioLevelModel.PIPE && lines.get(j - 1).charAt(i) != MarioLevelModel.PIPE_FLOWER) {
+                                    //Flor
+                                    imgGraphics.drawImage(Assets.enemies[1][6], (i % width) * BLOCKSIZE + BLOCKSIZE / 2, j * BLOCKSIZE - (int) (1.7 * BLOCKSIZE), null);
+                                    imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                } else {
+                                    imgGraphics.drawImage(Assets.level[4][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
+                                }
+                                rightPipe = true;
                             }
-                            else {
-                                imgGraphics.drawImage(Assets.level[4][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
-                            }
-                            rightPipe = true;
-                        }
                         else{
                             if(rightPipe){
-                                if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER) {
+                                if(j > 0 && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER) {
                                     imgGraphics.drawImage(Assets.level[3][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                                 }
                                 else{
@@ -145,7 +144,7 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
                                 rightPipe = false;
                             }
                             else{
-                                if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
+                                if(j > 0 && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
                                     imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                                 }
                                 else {
@@ -154,11 +153,12 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
                                 rightPipe = true;
                             }
                         }
+
                         break;
                     }
                     case MarioLevelModel.PIPE:{
                         if(line.charAt(i-1) != MarioLevelModel.PIPE_FLOWER && line.charAt(i-1) != MarioLevelModel.PIPE) {
-                            if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
+                            if(j > 0 && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
                                 imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                             }
                             else {
@@ -168,7 +168,7 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
                         }
                         else{
                             if(rightPipe){
-                                if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER) {
+                                if(j > 0 && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER) {
                                     imgGraphics.drawImage(Assets.level[3][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                                 }
                                 else{
@@ -177,7 +177,7 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
                                 rightPipe = false;
                             }
                             else{
-                                if(lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
+                                if(j > 0 && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE && lines.get(j-1).charAt(i) != MarioLevelModel.PIPE_FLOWER){
                                     imgGraphics.drawImage(Assets.level[2][2], (i % width) * BLOCKSIZE, j * BLOCKSIZE, null);
                                 }
                                 else {

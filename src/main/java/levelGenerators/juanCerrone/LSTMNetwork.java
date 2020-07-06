@@ -122,6 +122,8 @@ public class LSTMNetwork {
         for (int i = init.length/16; i < model.getWidth(); i++) {
             for (int j = model.getHeight() - 1; j >= 0 ; j--) {
                 INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
+                //raiseProbabilities(output,MarioLevelModel.COIN,10.0);
+                //raiseProbabilities(output,MarioLevelModel.RED_KOOPA,10.0);
                 char sample = sampleFromProbDistribution(output);
                 nextInput.putScalar(new int[]{0, characterIterator.convertCharacterToIndex(sample)}, 1.0f);
                 model.setBlock(i,j,sample);
@@ -129,13 +131,25 @@ public class LSTMNetwork {
                     return model.copyUntilFlag(i+1).getMap();
                 }
                 output = net.rnnTimeStep(nextInput);
-                System.out.println(output);
             }
-
         }
         return model.getMap();
     }
 
+    private void raiseProbabilities(INDArray output,char block, double root){
+        int blockIndex = characterIterator.convertCharacterToIndex(block);
+        double initialRemaining = 1.0-output.getDouble(blockIndex);
+        double pow = Math.pow(output.getDouble(blockIndex), 1.0 / root);
+        output.putScalar(blockIndex,pow);
+        double finalRemaining = 1.0-output.getDouble(blockIndex);
+        double scalingRatio = finalRemaining/initialRemaining;
+        System.out.println(scalingRatio);
+        for (int i = 0; i < output.length()-1; i++) {
+             if(i!=blockIndex){
+                 output.putScalar(i,output.getDouble(i)*scalingRatio);
+             }
+        }
+    }
     private LevelIterator getLevelIterator() throws IOException {
         char[] validCharacters = MarioLevelModel.getAllTiles();
         File[] levels = levelsFolder.listFiles();
