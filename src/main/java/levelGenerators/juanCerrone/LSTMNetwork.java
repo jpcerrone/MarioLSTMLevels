@@ -136,11 +136,12 @@ public class LSTMNetwork {
         for (int i = init.length/16; i < model.getWidth(); i++) {
             for (int j = model.getHeight() - 1; j >= 0 ; j--) {
                 INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
-                //raiseProbabilities(output,MarioLevelModel.COIN,10.0);
-                //raiseProbabilities(output,MarioLevelModel.RED_KOOPA,10.0);
                 char sample = sampleFromProbDistribution(output);
+                //raiseProbabilities(output,MarioLevelModel.GREEN_KOOPA,5.0);
+                //raiseProbabilities(output,MarioLevelModel.RED_KOOPA,5.0);
+                char modifiedSample = sampleFromProbDistribution(output);
                 nextInput.putScalar(new int[]{0, characterIterator.convertCharacterToIndex(sample)}, 1.0f);
-                model.setBlock(i,j,sample);
+                model.setBlock(i,j,modifiedSample);
                 if(sample == MarioLevelModel.MARIO_EXIT){
                     return model.copyUntilFlag(i+1).getMap();
                 }
@@ -157,7 +158,6 @@ public class LSTMNetwork {
         output.putScalar(blockIndex,pow);
         double finalRemaining = 1.0-output.getDouble(blockIndex);
         double scalingRatio = finalRemaining/initialRemaining;
-        System.out.println(scalingRatio);
         for (int i = 0; i < output.length()-1; i++) {
              if(i!=blockIndex){
                  output.putScalar(i,output.getDouble(i)*scalingRatio);
