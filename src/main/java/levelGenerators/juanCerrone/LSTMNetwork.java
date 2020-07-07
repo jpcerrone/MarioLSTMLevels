@@ -25,7 +25,7 @@ import java.util.Random;
 
 public class LSTMNetwork {
     //Directorio que contiene el modelo de la última red generada
-    private static final String MODELSAVEPATH = "model/model6.zip";
+    private static final String MODELSAVEPATH = "model/model15oF.zip";
     //Direcotrio que contiene el log del score de la última red generada
     private static final String LOGSAVEPATH = "log";
     //Carpeta que contiene los niveles usados para entrenar
@@ -73,7 +73,7 @@ public class LSTMNetwork {
                 .layer(new LSTM.Builder().nIn(characterIterator.inputColumns()).nOut(lstmLayerSize)
                         .activation(Activation.TANH).build())
                 .layer(new LSTM.Builder().nIn(lstmLayerSize).nOut(lstmLayerSize)
-                        .activation(Activation.TANH).build())
+                        .activation(Activation.TANH).dropOut(0.8).build())
                 .layer(new RnnOutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD).activation(Activation.SOFTMAX)
                         .nIn(lstmLayerSize).nOut(nOut).build())
                 .build();
