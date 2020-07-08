@@ -21,6 +21,7 @@ import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 
 public class LSTMNetwork {
@@ -113,7 +114,7 @@ public class LSTMNetwork {
     }
 
     //Genera un nivel usando la red ya entrenada
-    public String getGeneratedLevel(MarioLevelModel model, String initSeed){
+    public String getGeneratedLevel(MarioLevelModel model, String initSeed, Map<Character,Double> modifications){
         if(initSeed.length()%LEVEL_HEIGHT != 0){
             throw new IllegalArgumentException("initSeed debe ser múltiplo de 16");
         }
@@ -137,11 +138,17 @@ public class LSTMNetwork {
             for (int j = model.getHeight() - 1; j >= 0 ; j--) {
                 INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
                 char sample = sampleFromProbDistribution(output);
-                //raiseProbabilities(output,MarioLevelModel.GREEN_KOOPA,5.0);
-                //raiseProbabilities(output,MarioLevelModel.RED_KOOPA,5.0);
-                char modifiedSample = sampleFromProbDistribution(output);
-                nextInput.putScalar(new int[]{0, characterIterator.convertCharacterToIndex(sample)}, 1.0f);
-                model.setBlock(i,j,modifiedSample);
+                if(modifications.isEmpty()){
+                    model.setBlock(i,j,sample);
+                }
+                else{ //Si hay modificaciones la red genera en base a las mismas
+                    for(Character c : modifications.keySet()){
+                        raiseProbabilities(output,c,modifications.get(c));
+                    }
+                    char modifiedSample = sampleFromProbDistribution(output);
+                    model.setBlock(i,j,modifiedSample);
+                }
+                nextInput.putScalar(new int[]{0, characterIterator.convertCharacterToIndex(sample)}, 1.0f); //La red ignorará los bloques generados mediante las modificaciones y considerará que se han generado siguiendo la distribución original
                 if(sample == MarioLevelModel.MARIO_EXIT){
                     return model.copyUntilFlag(i+1).getMap();
                 }

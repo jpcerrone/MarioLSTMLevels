@@ -7,9 +7,11 @@ import engine.core.MarioTimer;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
-public class LevelGenerator implements MarioLevelGenerator {
+public class LevelGenerator {
     //Red LSTM
     private LSTMNetwork network;
     //Carpeta donde se encuentran los niveles para el entrenamiento
@@ -36,11 +38,10 @@ public class LevelGenerator implements MarioLevelGenerator {
     }
 
     //Genera un nivel bloque por bloque y se guarda en un archivo. Se le envía un seed que describe el comienzo del nivel
-    @Override
-    public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer) {
+    public String getGeneratedLevel(MarioLevelModel model, String initSeed, Map<Character,Double> modifications) {
 
         model.clearMap();
-        String level =  network.getGeneratedLevel(model,Seed.OVERWORLD);
+        String level =  network.getGeneratedLevel(model,initSeed,modifications);
         saveFile(level);
         return level;
 
@@ -61,10 +62,5 @@ public class LevelGenerator implements MarioLevelGenerator {
             e.printStackTrace();
         }
 
-    }
-
-    @Override
-    public String getGeneratorName() {
-        return "JuanCerroneGenerator";
     }
 }
