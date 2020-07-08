@@ -358,7 +358,7 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         //Guardar imágen
-        File imgFile = new File("outuptImageFileName");
+        File imgFile = new File(outuptImageFileName);
         try {
             ImageIO.write((RenderedImage) img,"png",imgFile);
         } catch (IOException ex) {
