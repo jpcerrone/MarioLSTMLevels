@@ -20,9 +20,10 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map;
-import java.util.Random;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class LSTMNetwork {
     //Directorio que contiene el modelo de la última red generada
@@ -30,15 +31,15 @@ public class LSTMNetwork {
     //Direcotrio que contiene el log del score de la última red generada
     private static final String LOGSAVEPATH = "log";
     //Carpeta que contiene los niveles usados para entrenar
-    protected File levelsFolder;
+    private File levelsFolder;
     //Cada cuantos bloques se actualizan los parametros
-    protected static final int tbpttLength = 0;
+    private static final int tbpttLength = 0;
     //Dimensionalidad del cell state
-    protected static final int lstmLayerSize = 128;
+    private static final int lstmLayerSize = 128;
     //Semilla
     private static final long seed = 12345;
     //Cantidad de epochs
-    protected static final int numEpochs = 2000 ;
+    private static final int numEpochs = 2000 ;
     //Referencia a la red
     private MultiLayerNetwork net;
     //Iterador que permite recorrer los niveles
@@ -46,14 +47,23 @@ public class LSTMNetwork {
     //Generador de numero aleatorios
     private Random rng;
     //Tamaño del minibatch (Ejemplos que entrenan en paralelo)
-    protected int minibatchSize = 20;
+    private static final int minibatchSize = 20;
     //Tasa de aprendizaje
-    protected double learningRate = 0.01;
+    protected static final double learningRate = 0.01;
     //Altura de los niveles
     private static final int LEVEL_HEIGHT = 16;
+    //Checkpoints de cuando generar niveles durante el entrenamiento
+    private static final List<Integer> checkpoints = new ArrayList<>(List.of(1,10,50,100,1000,2000,3000,4000));
+    //Carpeta donde se encuentran los niveles para el entrenamiento
+    private static final String trainingLevelsFolder = "levels/original/";
 
-    public LSTMNetwork(String levelsFolder) {
-        this.levelsFolder = new File(levelsFolder);
+
+    private static final String generatedDuringTrainingLevelsFolder = "levels/generatedDuringTraining/";
+    private static final String defaultSeed = Seed.OVERWORLD;
+
+
+    public LSTMNetwork() {
+        this.levelsFolder = new File(trainingLevelsFolder);
         rng = new Random();
         try {
             characterIterator = getLevelIterator();
@@ -63,7 +73,7 @@ public class LSTMNetwork {
     }
 
     //Configura la red y realiza el entrenamiento
-    public void initialize() throws IOException {
+    public void initialize(boolean train) throws IOException {
         int nOut = characterIterator.inputColumns();
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
@@ -86,6 +96,22 @@ public class LSTMNetwork {
 
         net = new MultiLayerNetwork(conf);
         net.init();
+        if (train) {
+            try {
+                long trainingTime = System.currentTimeMillis();
+                trainNetwork();
+                trainingTime = System.currentTimeMillis() - trainingTime;
+                System.out.println("Red Entrenada!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+            loadModel();
+    }
+
+
+    private void trainNetwork() throws IOException {
         //Para mostrar el score del gradient descent
         //net.setListeners(new ScoreIterationListener(200));
         //Logue los scores en un archivo
@@ -108,13 +134,17 @@ public class LSTMNetwork {
                 net.fit(ds);
             }
             characterIterator.reset();
+            if(checkpoints.contains(numEpochs)){
+                String level = getGeneratedLevel(new MarioLevelModel(1000,16),defaultSeed,null);
+                saveFile(level,generatedDuringTrainingLevelsFolder);
+            }
         }
         System.out.println("\n\nEntrenamiento Completado");
         net.save(new File(MODELSAVEPATH), true);
     }
-
     //Genera un nivel usando la red ya entrenada
     public String getGeneratedLevel(MarioLevelModel model, String initSeed, Map<Character,Double> modifications){
+        model.clearMap();
         if(initSeed.length()%LEVEL_HEIGHT != 0){
             throw new IllegalArgumentException("initSeed debe ser múltiplo de 16");
         }
@@ -138,7 +168,7 @@ public class LSTMNetwork {
             for (int j = model.getHeight() - 1; j >= 0 ; j--) {
                 INDArray nextInput = Nd4j.zeros(1, characterIterator.inputColumns());
                 char sample = sampleFromProbDistribution(output);
-                if(modifications.isEmpty()){
+                if(modifications == null || modifications.isEmpty()){
                     model.setBlock(i,j,sample);
                 }
                 else{ //Si hay modificaciones la red genera en base a las mismas
@@ -192,7 +222,7 @@ public class LSTMNetwork {
     }
 
     //Carga el modelo de red de un archivo
-    public void loadModel(){
+    private void loadModel(){
         File model = new File(MODELSAVEPATH);
         try {
             net = MultiLayerNetwork.load(model, true);
@@ -201,4 +231,18 @@ public class LSTMNetwork {
         }
     }
 
+    //Guarda el archivo del nivel con las stats del mismo en su nombre
+    public void saveFile(String level,String folder){
+        File generatedLevelsFolderFile = new File(folder);
+        try {
+            String filename = folder
+                    + Objects.requireNonNull(generatedLevelsFolderFile.listFiles()).length
+                    +  ".txt";
+            FileWriter f = new FileWriter(filename);
+            f.write(level);
+            f.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
