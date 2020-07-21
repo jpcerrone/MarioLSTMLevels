@@ -27,7 +27,7 @@ import java.util.*;
 
 public class LSTMNetwork {
     //Directorio que contiene el modelo de la última red generada
-    private static final String MODELSAVEPATH = "model/model15oF.zip";
+    private static final String MODELSAVEPATH = "model/model.zip";
     //Direcotrio que contiene el log del score de la última red generada
     private static final String LOGSAVEPATH = "log";
     //Carpeta que contiene los niveles usados para entrenar
@@ -39,7 +39,7 @@ public class LSTMNetwork {
     //Semilla
     private static final long seed = 12345;
     //Cantidad de epochs
-    private static final int numEpochs = 2000 ;
+    private static final int numEpochs = 4000;
     //Referencia a la red
     private MultiLayerNetwork net;
     //Iterador que permite recorrer los niveles
@@ -53,14 +53,13 @@ public class LSTMNetwork {
     //Altura de los niveles
     private static final int LEVEL_HEIGHT = 16;
     //Checkpoints de cuando generar niveles durante el entrenamiento
-    private static final List<Integer> checkpoints = new ArrayList<>(List.of(1,10,50,100,1000,2000,3000,4000));
+    private static final List<Integer> checkpoints = new ArrayList<>(List.of(1,500,1000,1500,2000,2500,3000,3500,4000));
     //Carpeta donde se encuentran los niveles para el entrenamiento
     private static final String trainingLevelsFolder = "levels/original/";
-
-
+    //Carpeta donde se guardarán los niveles genereados durante el entrenamiento
     private static final String generatedDuringTrainingLevelsFolder = "levels/generatedDuringTraining/";
+    //Semilla por defecto para la generación de los niveles durante en entrenamiento
     private static final String defaultSeed = Seed.OVERWORLD;
-
 
     public LSTMNetwork() {
         this.levelsFolder = new File(trainingLevelsFolder);
@@ -73,7 +72,7 @@ public class LSTMNetwork {
     }
 
     //Configura la red y realiza el entrenamiento
-    public void initialize(boolean train) throws IOException {
+    public void initialize(boolean train, boolean generateLevelsDuringTraining) throws IOException {
         int nOut = characterIterator.inputColumns();
         MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
                 .seed(seed)
@@ -98,9 +97,7 @@ public class LSTMNetwork {
         net.init();
         if (train) {
             try {
-                long trainingTime = System.currentTimeMillis();
-                trainNetwork();
-                trainingTime = System.currentTimeMillis() - trainingTime;
+                trainNetwork(generateLevelsDuringTraining);
                 System.out.println("Red Entrenada!");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -111,21 +108,14 @@ public class LSTMNetwork {
     }
 
 
-    private void trainNetwork() throws IOException {
-        //Para mostrar el score del gradient descent
-        //net.setListeners(new ScoreIterationListener(200));
-        //Logue los scores en un archivo
-        //net.setListeners(new ParamAndGradientIterationListener(1, true, false, false, false, false, true, false, new File(LOGSAVEPATH), ","));
+    private void trainNetwork(boolean generateLevelsDuringTraining) throws IOException {
+
+        //Configuración de logueo de las estadísticas del entrenamiento
         UIServer uiServer = UIServer.getInstance();
-
-        //Configure where the network information (gradients, score vs. time etc) is to be stored. Here: store in memory.
-        StatsStorage statsStorage = new FileStatsStorage(new File(LOGSAVEPATH));         //Alternative: new FileStatsStorage(File), for saving and loading later
-
-        //Attach the StatsStorage instance to the UI: this allows the contents of the StatsStorage to be visualized
+        StatsStorage statsStorage = new FileStatsStorage(new File(LOGSAVEPATH));
         uiServer.attach(statsStorage);
-
-        //Then add the StatsListener to collect this information from the network, as it trains
         net.setListeners(new StatsListener(statsStorage));
+
         //Entrena la red durante la cantidad de epochs especificada y se guarda el modelo de la misma en un archivo
         for( int j=0; j<numEpochs; j++ ){
             System.out.println("Epoch: " + j );
@@ -134,9 +124,9 @@ public class LSTMNetwork {
                 net.fit(ds);
             }
             characterIterator.reset();
-            if(checkpoints.contains(numEpochs)){
-                String level = getGeneratedLevel(new MarioLevelModel(1000,16),defaultSeed,null);
-                saveFile(level,generatedDuringTrainingLevelsFolder);
+            if(generateLevelsDuringTraining && checkpoints.contains(j)){
+                String level = getGeneratedLevel(new MarioLevelModel(2000,LEVEL_HEIGHT),defaultSeed,null);
+                FileUtilities.saveFile(level,generatedDuringTrainingLevelsFolder);
             }
         }
         System.out.println("\n\nEntrenamiento Completado");
@@ -217,10 +207,6 @@ public class LSTMNetwork {
         return characterIterator.convertIndexToCharacter(i);
     }
 
-    public double getScore(){
-        return net.score();
-    }
-
     //Carga el modelo de red de un archivo
     private void loadModel(){
         File model = new File(MODELSAVEPATH);
@@ -231,18 +217,4 @@ public class LSTMNetwork {
         }
     }
 
-    //Guarda el archivo del nivel con las stats del mismo en su nombre
-    public void saveFile(String level,String folder){
-        File generatedLevelsFolderFile = new File(folder);
-        try {
-            String filename = folder
-                    + Objects.requireNonNull(generatedLevelsFolderFile.listFiles()).length
-                    +  ".txt";
-            FileWriter f = new FileWriter(filename);
-            f.write(level);
-            f.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
