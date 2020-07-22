@@ -14,9 +14,9 @@ import java.util.Scanner;
 
 public class GenerateLevel {
 
-	private static final boolean trainNetwork = true;
+	private static final boolean trainNetwork = false;
 	private static final boolean generateLevelsDuringTraining = false;
-	private static final int numberOfLevels = 10;
+	private static final int numberOfLevels = 20;
 	private static final int maxLevelWidth = 2000;
 	private static final String initSeed = Seed.OVERWORLD;
 	private static Map<Character,Double> modifications;

@@ -33,7 +33,7 @@ public class Ventana extends JFrame implements KeyListener, ActionListener {
     //Desplazamiento del nivel en el eje X, para poder scrollear el nivel
     private int xShift;
     //Carpeta que contiene los niveles a dibujar
-    private static final String levelsFolderPath = "levels/jC";
+    private static final String levelsFolderPath = "levels/original";
     //Imágen de salida
     private static final String outuptImageFileName = "levelImage.png";
     //Nivel actual
