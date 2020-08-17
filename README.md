@@ -6,7 +6,10 @@ Se deben instalar las dependencias del proyecto especificadas en pom.xml utiliza
 
 # Ejecución
 El generador puede ser utilizado ejecutando https://github.com/jpcerrone/MarioLSTMLevels/blob/master/src/main/java/GenerateLevel.java . En este archivo pueden además especificarse distintos parámetros para la generación, como cantidad de niveles, longitud máxima, tipo de los niveles y modificaciónes de bloques.
+
 Los niveles generados son guardados en la carpeta levels/jC , pero además puede ser visualizados utilizando la herramienta Visualizador.jar.
+
+Se puede jugar a los niveles especificando el archivo del nivel en https://github.com/jpcerrone/MarioLSTMLevels/blob/master/src/main/java/PlayLevel.java. También se puede hacer que lo jueguen los distntos agentes inteligentes.
 
 # Referencias
 El código del proyecto está escrito sobre MarioAI Framework: https://github.com/amidos2006/Mario-AI-Framework.
