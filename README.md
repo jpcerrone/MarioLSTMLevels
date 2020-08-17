@@ -1,6 +1,9 @@
 # Mario LSTM Levels
 Un generador de niveles para Super Mario Bros, basado en la utilización de redes LSTM.
 
+# Set Up
+Se deben instalar las dependencias del proyecto especificadas en pom.xml utilizando Maven.
+
 # Ejecución
 El generador puede ser utilizado ejecutando https://github.com/jpcerrone/MarioLSTMLevels/blob/master/src/main/java/GenerateLevel.java . En este archivo pueden además especificarse distintos parámetros para la generación, como cantidad de niveles, longitud máxima, tipo de los niveles y modificaciónes de bloques.
 Los niveles generados son guardados en la carpeta levels/jC , pero además puede ser visualizados utilizando la herramienta Visualizador.jar.
