@@ -2,7 +2,7 @@
 Un generador de niveles para Super Mario Bros, basado en la utilización de redes LSTM.
 
 # Set Up
-Se deben instalar las dependencias del proyecto especificadas en pom.xml utilizando Maven.
+Se deben instalar las dependencias del proyecto especificadas en pom.xml utilizando Maven. En el caso de que se quiera entrenar nuevamente a la red se deberá configurar el tipo de backend (GPU/CPU) en el archivo de pom.xml. Más información: https://deeplearning4j.konduit.ai/config/backends
 
 # Ejecución
 El generador puede ser utilizado ejecutando https://github.com/jpcerrone/MarioLSTMLevels/blob/master/src/main/java/GenerateLevel.java . En este archivo pueden además especificarse distintos parámetros para la generación, como cantidad de niveles, longitud máxima, tipo de los niveles y modificaciónes de bloques.
